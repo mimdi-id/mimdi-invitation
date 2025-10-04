@@ -1,0 +1,24 @@
+{
+  "development": {
+    "username": "mimdi",
+    "password": "mimdi123",
+    "database": "mimdi_invitation_db",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "mimdi",
+    "password": "mimdi123",
+    "database": "mimdi_invitation_db_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "mimdi",
+    "password": "mimdi123",
+    "database": "mimdi_invitation_db_production",
+    "host": "db",
+    "dialect": "mysql"
+  }
+}
+
