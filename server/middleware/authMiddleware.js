@@ -1,35 +1,49 @@
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const db = require('../models');
 
+/**
+ * Middleware untuk melindungi rute.
+ * Memverifikasi token JWT dan melampirkan data pengguna (termasuk peran) ke objek request.
+ */
 const authMiddleware = async (req, res, next) => {
     let token;
 
-    // Cek header untuk 'Bearer token'
+    // Cek apakah header Authorization ada dan berformat 'Bearer <token>'
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
-    }
+        try {
+            // 1. Ambil token dari header
+            token = req.headers.authorization.split(' ')[1];
 
-    if (!token) {
-        return res.status(401).json({ success: false, error: 'Not authorized to access this route' });
-    }
+            // 2. Verifikasi token menggunakan secret key
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    try {
-        // Verifikasi token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            // 3. Ambil data pengguna dari database berdasarkan ID di token
+            //    INI ADALAH BAGIAN YANG DIPERBAIKI:
+            //    Kita menggunakan 'include' untuk mengambil data Role yang terhubung.
+            req.user = await db.User.findByPk(decoded.id, {
+                include: {
+                    model: db.Role,
+                    as: 'role' // Pastikan 'as' ini cocok dengan yang ada di model User
+                }
+            });
 
-        // Cari user di DB dan lampirkan ke request object
-        req.user = await User.findByPk(decoded.id, {
-            attributes: { exclude: ['password'] } // Jangan sertakan password
-        });
+            // Jika pengguna tidak ditemukan (misalnya sudah dihapus)
+            if (!req.user) {
+                return res.status(401).json({ success: false, error: 'Token tidak valid, pengguna tidak ditemukan' });
+            }
 
-        if (!req.user) {
-             return res.status(401).json({ success: false, error: 'User not found' });
+            // Lanjutkan ke middleware atau controller selanjutnya
+            next();
+
+        } catch (error) {
+            console.error('Error otentikasi token:', error.message);
+            res.status(401).json({ success: false, error: 'Token tidak valid atau kedaluwarsa' });
         }
+    }
 
-        next();
-    } catch (error) {
-        console.error(error);
-        return res.status(401).json({ success: false, error: 'Not authorized to access this route' });
+    // Jika tidak ada token sama sekali
+    if (!token) {
+        res.status(401).json({ success: false, error: 'Tidak ada token, otorisasi ditolak' });
     }
 };
 

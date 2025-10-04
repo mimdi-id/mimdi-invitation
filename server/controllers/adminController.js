@@ -1,133 +1,109 @@
-const { User, Role } = require('../models');
+const db = require('../models');
 const bcrypt = require('bcryptjs');
 
 /**
- * @desc    Membuat akun Admin baru (hanya oleh Super Admin)
- * @route   POST /api/admins
- * @access  Private (Super Admin)
- */
-exports.createAdmin = async (req, res) => {
-    const { name, email, password, invitationQuota } = req.body;
-
-    try {
-        // Cek jika email sudah ada
-        let user = await User.findOne({ where: { email } });
-        if (user) {
-            return res.status(400).json({ msg: 'Email sudah terdaftar untuk admin lain.' });
-        }
-
-        // Dapatkan role 'admin'
-        const adminRole = await Role.findOne({ where: { name: 'admin' } });
-        if (!adminRole) {
-            return res.status(500).json({ msg: 'Role "admin" tidak ditemukan. Jalankan seeder.' });
-        }
-
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Buat admin baru
-        const newAdmin = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            roleId: adminRole.id,
-            invitationQuota: invitationQuota || 0, // Default 0 jika tidak diset
-        });
-
-        // Hapus password dari objek respons
-        const adminResponse = newAdmin.toJSON();
-        delete adminResponse.password;
-
-        res.status(201).json(adminResponse);
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
-};
-
-/**
- * @desc    Mendapatkan semua akun Admin (hanya oleh Super Admin)
- * @route   GET /api/admins
- * @access  Private (Super Admin)
+ * GET /api/admins
+ * Mengambil semua pengguna dengan peran 'Admin'.
  */
 exports.getAllAdmins = async (req, res) => {
     try {
-        const adminRole = await Role.findOne({ where: { name: 'admin' } });
+        const adminRole = await db.Role.findOne({ where: { name: 'Admin' } });
         if (!adminRole) {
-            return res.status(500).json({ msg: 'Role "admin" tidak ditemukan.' });
+            return res.status(200).json({ success: true, data: [] });
         }
 
-        const admins = await User.findAll({
+        const admins = await db.User.findAll({
             where: { roleId: adminRole.id },
-            attributes: { exclude: ['password'] } // Jangan kirim password
+            attributes: ['id', 'username', 'invitation_quota'],
         });
 
-        res.json(admins);
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(200).json({ success: true, data: admins });
+    } catch (error) {
+        console.error('Error saat mengambil data admin:', error);
+        res.status(500).json({ success: false, error: 'Server Error' });
     }
 };
 
-
 /**
- * @desc    Mengupdate kuota Admin (hanya oleh Super Admin)
- * @route   PUT /api/admins/:id/quota
- * @access  Private (Super Admin)
+ * POST /api/admins
+ * Membuat pengguna baru dengan peran 'Admin'.
  */
-exports.updateAdminQuota = async (req, res) => {
-    const { quota } = req.body;
-    
-    if (typeof quota !== 'number' || quota < 0) {
-        return res.status(400).json({ msg: 'Nilai kuota tidak valid.' });
+exports.createAdmin = async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ success: false, error: 'Username dan password diperlukan.' });
     }
 
     try {
-        const admin = await User.findByPk(req.params.id);
-
-        if (!admin) {
-            return res.status(404).json({ msg: 'Admin tidak ditemukan.' });
+        const adminRole = await db.Role.findOne({ where: { name: 'Admin' } });
+        if (!adminRole) {
+            return res.status(500).json({ success: false, error: 'Peran "Admin" tidak ditemukan.' });
         }
 
-        admin.invitationQuota = quota;
-        await admin.save();
-        
-        const adminResponse = admin.toJSON();
-        delete adminResponse.password;
+        const existingUser = await db.User.findOne({ where: { username } });
+        if (existingUser) {
+            return res.status(400).json({ success: false, error: 'Username sudah digunakan.' });
+        }
 
-        res.json(adminResponse);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newAdmin = await db.User.create({
+            username,
+            password: hashedPassword,
+            roleId: adminRole.id,
+            invitation_quota: 10,
+        });
 
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(201).json({
+            success: true,
+            message: 'Admin berhasil dibuat.',
+            data: { id: newAdmin.id, username: newAdmin.username, invitation_quota: newAdmin.invitation_quota },
+        });
+    } catch (error) {
+        console.error('Error saat membuat admin:', error);
+        res.status(500).json({ success: false, error: 'Server Error' });
     }
 };
 
+/**
+ * PUT /api/admins/:id
+ * Memperbarui data admin (misalnya, kuota).
+ */
+exports.updateAdmin = async (req, res) => {
+    try {
+        const { invitation_quota } = req.body;
+        const admin = await db.User.findByPk(req.params.id);
+
+        if (!admin) {
+            return res.status(404).json({ success: false, error: 'Admin tidak ditemukan.' });
+        }
+
+        admin.invitation_quota = invitation_quota ?? admin.invitation_quota;
+        await admin.save();
+
+        res.status(200).json({ success: true, message: 'Admin berhasil diperbarui.', data: admin });
+    } catch (error) {
+        console.error('Error saat memperbarui admin:', error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+};
 
 /**
- * @desc    Menghapus akun Admin (hanya oleh Super Admin)
- * @route   DELETE /api/admins/:id
- * @access  Private (Super Admin)
+ * DELETE /api/admins/:id
+ * Menghapus admin.
  */
 exports.deleteAdmin = async (req, res) => {
     try {
-        const admin = await User.findByPk(req.params.id);
+        const admin = await db.User.findByPk(req.params.id);
 
         if (!admin) {
-            return res.status(404).json({ msg: 'Admin tidak ditemukan.' });
+            return res.status(404).json({ success: false, error: 'Admin tidak ditemukan.' });
         }
 
-        // Sebaiknya, tambahkan logika untuk menangani undangan yang dimiliki admin ini
-        // Untuk saat ini, kita langsung hapus.
         await admin.destroy();
-
-        res.json({ msg: 'Akun admin berhasil dihapus.' });
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(200).json({ success: true, message: 'Admin berhasil dihapus.' });
+    } catch (error) {
+        console.error('Error saat menghapus admin:', error);
+        res.status(500).json({ success: false, error: 'Server Error' });
     }
 };
+

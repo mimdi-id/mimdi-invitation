@@ -1,73 +1,60 @@
+const db = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User, Role } = require('../models');
 
-// @desc    Register a new user (admin/superadmin)
-// @route   POST /api/auth/register
-// @access  Public (for initial setup) or Private (SuperAdmin only)
-exports.register = async (req, res) => {
-    const { name, email, password, roleName } = req.body;
-
-    try {
-        // Cek apakah user sudah ada
-        let user = await User.findOne({ where: { email } });
-        if (user) {
-            return res.status(400).json({ success: false, error: 'User already exists' });
-        }
-
-        // Cari Role berdasarkan nama
-        const role = await Role.findOne({ where: { name: roleName || 'Admin' } });
-        if (!role) {
-            return res.status(400).json({ success: false, error: 'Invalid role specified' });
-        }
-
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Buat user baru
-        user = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            roleId: role.id
-        });
-
-        sendTokenResponse(user, 201, res);
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
+// Fungsi untuk menghasilkan token JWT
+const generateToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE || '30d',
+    });
 };
 
-// @desc    Login user
+// @desc    Register a new user (jika diperlukan di masa depan)
+// @route   POST /api/auth/register
+// @access  Public
+const register = async (req, res) => {
+    // Implementasi register bisa ditambahkan di sini jika perlu
+    res.status(501).json({ success: false, error: 'Fungsi register belum diimplementasikan.' });
+};
+
+// @desc    Authenticate user & get token
 // @route   POST /api/auth/login
 // @access  Public
-exports.login = async (req, res) => {
-    const { email, password } = req.body;
+const login = async (req, res) => {
+    // --- PERBAIKAN DI SINI ---
+    // Menggunakan 'username' bukan 'email'
+    const { username, password } = req.body;
 
-    if (!email || !password) {
-        return res.status(400).json({ success: false, error: 'Please provide email and password' });
+    // Validasi input
+    if (!username || !password) {
+        return res.status(400).json({ success: false, error: 'Tolong berikan username dan password' });
     }
 
     try {
-        const user = await User.findOne({ where: { email } });
+        // Cari user berdasarkan username
+        const user = await db.User.findOne({ 
+            where: { username },
+            include: { model: db.Role, as: 'role' } // Sertakan role untuk info di frontend
+        });
 
-        if (!user) {
-            return res.status(401).json({ success: false, error: 'Invalid credentials' });
+        // Jika user tidak ditemukan atau password tidak cocok
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(401).json({ success: false, error: 'Username atau password salah' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if (!isMatch) {
-            return res.status(401).json({ success: false, error: 'Invalid credentials' });
-        }
-
-        sendTokenResponse(user, 200, res);
+        // Jika berhasil, kirim token
+        res.status(200).json({
+            success: true,
+            token: generateToken(user.id),
+            user: {
+                id: user.id,
+                username: user.username,
+                role: user.role.name
+            }
+        });
 
     } catch (error) {
-        console.error(error);
+        console.error('Login error:', error);
         res.status(500).json({ success: false, error: 'Server Error' });
     }
 };
@@ -75,22 +62,17 @@ exports.login = async (req, res) => {
 // @desc    Get current logged in user
 // @route   GET /api/auth/me
 // @access  Private
-exports.getMe = async (req, res) => {
-    // req.user di-set dari authMiddleware
+const getMe = async (req, res) => {
+    // req.user sudah diisi oleh authMiddleware
+    if (!req.user) {
+         return res.status(404).json({ success: false, error: 'User tidak ditemukan' });
+    }
     res.status(200).json({ success: true, data: req.user });
 };
 
-
-// Helper untuk membuat dan mengirim token
-const sendTokenResponse = (user, statusCode, res) => {
-    const payload = { id: user.id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE || '30d'
-    });
-
-    res.status(statusCode).json({
-        success: true,
-        token
-    });
+module.exports = {
+    register,
+    login,
+    getMe,
 };
 

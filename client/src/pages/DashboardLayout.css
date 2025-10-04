@@ -1,0 +1,19 @@
+/*
+ * File: client/src/pages/DashboardLayout.css
+ * Deskripsi: Styling untuk layout utama dasbor yang membungkus Sidebar dan konten.
+ */
+
+.dashboard-layout {
+    display: flex;
+    background-color: #f9fafb; /* Latar belakang abu-abu muda */
+    min-height: 100vh;
+    padding-left: 250px; /* Memberi ruang untuk sidebar yang fixed */
+}
+
+.dashboard-main-content {
+    flex-grow: 1; /* Mengisi sisa ruang yang tersedia */
+    padding: 2.5rem; /* Jarak dari tepi */
+    width: 100%;
+    box-sizing: border-box;
+}
+

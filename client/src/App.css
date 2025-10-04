@@ -1,42 +1,44 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* * File: client/src/App.css
+ * Deskripsi: File CSS global untuk aplikasi React.
+ * Berisi reset dasar, gaya font, dan kelas utilitas.
+ */
+
+/* Reset dasar dan gaya untuk elemen root */
+body, html, #root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Inter', sans-serif; /* Menggunakan font Inter sesuai rencana */
+    background-color: #f9fafb; /* Latar belakang abu-abu sangat muda untuk seluruh aplikasi */
+    color: #111827; /* Warna teks default */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Kelas utilitas untuk loading spinner */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Mengisi seluruh tinggi layar */
+    font-size: 1.5rem;
+    color: #4b5563; /* Warna abu-abu gelap */
+    font-weight: 500;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Kelas utilitas untuk pesan error */
+.error-message {
+    color: #ef4444; /* Merah untuk error */
+    font-size: 0.875rem; /* 14px */
+    margin-top: 0.5rem; /* Jarak atas 8px */
+    text-align: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Kelas utilitas untuk pesan sukses */
+.success-message {
+    color: #22c55e; /* Hijau untuk sukses */
+    font-size: 0.875rem; /* 14px */
+    margin-top: 0.5rem;
+    text-align: center;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
