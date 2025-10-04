@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    container_name: mimdi_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: your_strong_root_password
+      MYSQL_DATABASE: mimdi_invitation_db
+      MYSQL_USER: mimdi
+      MYSQL_PASSWORD: admin123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mimdi-db-data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    container_name: mimdi_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  mimdi-db-data:
