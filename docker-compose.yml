@@ -1,14 +1,14 @@
 version: '3.8'
 services:
-  db:
+  db: # <- INI NAMA SERVICE-NYA
     image: mysql:8.0
     container_name: mimdi_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: your_strong_root_password
+      MYSQL_ROOT_PASSWORD: mimdi123
       MYSQL_DATABASE: mimdi_invitation_db
       MYSQL_USER: mimdi
-      MYSQL_PASSWORD: admin123
+      MYSQL_PASSWORD: mimdi123
     ports:
       - "3306:3306"
     volumes:
@@ -23,3 +23,4 @@ services:
 
 volumes:
   mimdi-db-data:
+
