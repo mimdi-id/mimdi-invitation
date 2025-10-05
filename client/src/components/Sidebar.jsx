@@ -9,8 +9,9 @@ const Sidebar = ({ onLogout }) => {
                 <h2>Mimdi Admin</h2>
             </div>
             <nav className="sidebar-nav">
-                {/* NavLink akan secara otomatis menambahkan class 'active' */}
                 <NavLink to="/dashboard/admins">Kelola Admin</NavLink>
+                {/* --- Link BARU di sini --- */}
+                <NavLink to="/dashboard/invitations">Semua Undangan</NavLink>
                 <NavLink to="/dashboard/packages">Kelola Paket</NavLink>
                 <NavLink to="/dashboard/themes">Kelola Tema</NavLink>
             </nav>

@@ -1,46 +1,25 @@
 'use strict';
 const { Model } = require('sequelize');
+// Kita tidak lagi butuh bcrypt di sini karena tidak ada enkripsi otomatis
+// const bcrypt = require('bcryptjs'); 
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // --- TAMBAHKAN INI ---
-      // Mendefinisikan bahwa User memiliki (belongs to) satu Role
-      User.belongsTo(models.Role, {
-        foreignKey: 'roleId',
-        as: 'role', // Ini harus cocok dengan 'as' di controller
-      });
+      User.belongsTo(models.Role, { foreignKey: 'roleId', as: 'role' });
+      User.hasMany(models.Invitation, { foreignKey: 'adminId', as: 'createdInvitations' });
+      User.hasMany(models.Invitation, { foreignKey: 'userId', as: 'ownedInvitations' });
     }
   }
   User.init({
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    roleId: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'Roles', // Nama tabel
-        key: 'id'
-      }
-    },
-    invitation_quota: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0
-    }
+    username: { type: DataTypes.STRING, allowNull: false, unique: true },
+    password: { type: DataTypes.STRING, allowNull: false },
+    invitation_quota: { type: DataTypes.INTEGER, defaultValue: 0 },
+    password_pin: { type: DataTypes.STRING, allowNull: true },
   }, {
     sequelize,
     modelName: 'User',
+    // --- BLOK HOOKS DIHAPUS SEPENUHNYA DARI SINI ---
   });
   return User;
 };

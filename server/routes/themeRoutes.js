@@ -1,23 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const {
-    getAllThemes,
-    createTheme,
-    updateTheme,
-    deleteTheme
-} = require('../controllers/themeController');
+const { getAllThemes, createTheme, updateTheme, deleteTheme } = require('../controllers/themeController');
 const authMiddleware = require('../middleware/authMiddleware');
 const isSuperAdmin = require('../middleware/isSuperAdmin');
+const isAdmin = require('../middleware/isAdmin');
 
-// Semua rute di sini dilindungi dan hanya untuk Super Admin
-router.use(authMiddleware, isSuperAdmin);
-
-router.route('/')
-    .get(getAllThemes)
-    .post(createTheme);
-
-router.route('/:id')
-    .put(updateTheme)
-    .delete(deleteTheme);
+router.get('/', authMiddleware, isAdmin, getAllThemes);
+router.post('/', authMiddleware, isSuperAdmin, createTheme);
+router.put('/:id', authMiddleware, isSuperAdmin, updateTheme);
+router.delete('/:id', authMiddleware, isSuperAdmin, deleteTheme);
 
 module.exports = router;
+

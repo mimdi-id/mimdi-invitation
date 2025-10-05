@@ -1,23 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const {
-    getAllPackages,
-    createPackage,
-    updatePackage,
-    deletePackage
-} = require('../controllers/packageController');
+const { getAllPackages, createPackage, updatePackage, deletePackage } = require('../controllers/packageController');
 const authMiddleware = require('../middleware/authMiddleware');
 const isSuperAdmin = require('../middleware/isSuperAdmin');
+const isAdmin = require('../middleware/isAdmin');
 
-// Semua rute di sini dilindungi dan hanya untuk Super Admin
-router.use(authMiddleware, isSuperAdmin);
-
-router.route('/')
-    .get(getAllPackages)
-    .post(createPackage);
-
-router.route('/:id')
-    .put(updatePackage)
-    .delete(deletePackage);
+router.get('/', authMiddleware, isAdmin, getAllPackages);
+router.post('/', authMiddleware, isSuperAdmin, createPackage);
+router.put('/:id', authMiddleware, isSuperAdmin, updatePackage);
+router.delete('/:id', authMiddleware, isSuperAdmin, deletePackage);
 
 module.exports = router;
+

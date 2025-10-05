@@ -1,0 +1,60 @@
+.client-dashboard {
+    background-color: #f9fafb;
+    min-height: 100vh;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.client-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.client-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+.client-header .logout-button {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    background: linear-gradient(45deg, #ff5252, #ff1744);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.client-header .logout-button:hover {
+     box-shadow: 0 4px 12px rgba(255, 82, 82, 0.4);
+     transform: translateY(-2px);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.form-section.card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+    border: 1px solid #e5e7eb;
+}
+
+.form-section h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+}

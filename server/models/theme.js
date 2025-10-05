@@ -1,24 +1,23 @@
-module.exports = (sequelize, DataTypes) => {
-    const Theme = sequelize.define('Theme', {
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: true
-        },
-        tier: {
-            type: DataTypes.ENUM('Basic', 'Premium', 'Custom'),
-            allowNull: false,
-        },
-        // Menyimpan konfigurasi spesifik tema, seperti warna, font, dll.
-        config: {
-            type: DataTypes.JSON,
-            allowNull: true,
-        },
-        preview_image_url: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        }
-    });
+'use strict';
+const { Model } = require('sequelize');
 
-    return Theme;
+module.exports = (sequelize, DataTypes) => {
+  class Theme extends Model {
+    static associate(models) {
+      Theme.hasMany(models.Invitation, { foreignKey: 'themeId' });
+    }
+  }
+  Theme.init({
+    name: { type: DataTypes.STRING, allowNull: false },
+    tier: { type: DataTypes.ENUM('Basic', 'Premium', 'Custom'), allowNull: false },
+    config: {
+      type: DataTypes.JSON,
+      get() {
+        const rawValue = this.getDataValue('config');
+        try { return typeof rawValue === 'string' ? JSON.parse(rawValue || '{}') : (rawValue || {}); } catch (e) { return {}; }
+      },
+      set(value) { this.setDataValue('config', JSON.stringify(value || {})); }
+    }
+  }, { sequelize, modelName: 'Theme' });
+  return Theme;
 };

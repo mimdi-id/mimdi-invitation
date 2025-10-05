@@ -7,13 +7,13 @@ const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false); // State untuk loading
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
-        setLoading(true); // Mulai loading
+        setLoading(true);
 
         try {
             const response = await axios.post('http://localhost:5000/api/auth/login', {
@@ -22,8 +22,22 @@ const LoginPage = () => {
             });
 
             if (response.data.success && response.data.token) {
+                // Simpan token ke localStorage
                 localStorage.setItem('token', response.data.token);
-                navigate('/dashboard');
+                
+                // Ambil peran pengguna dari respons API
+                const userRole = response.data.user?.role?.name;
+
+                // Arahkan berdasarkan peran
+                if (userRole === 'Super Admin') {
+                    navigate('/dashboard'); // Rute defaultnya akan ke /dashboard/admins
+                } else if (userRole === 'Admin') {
+                    navigate('/admin');     // Rute defaultnya akan ke /admin/dashboard
+                } else {
+                    // Jika peran tidak dikenali, tampilkan error
+                    setError('Peran pengguna tidak valid atau tidak dikenali.');
+                    localStorage.removeItem('token'); // Hapus token jika peran tidak valid
+                }
             } else {
                 setError(response.data.error || 'Terjadi kesalahan saat login.');
             }
@@ -35,7 +49,7 @@ const LoginPage = () => {
             }
             console.error('Login error:', err);
         } finally {
-            setLoading(false); // Selesai loading
+            setLoading(false);
         }
     };
 
@@ -44,7 +58,7 @@ const LoginPage = () => {
             <div className="login-card">
                 <div className="login-header">
                     <h1>Mimdi Invitation</h1>
-                    <p>Dasbor Super Admin</p>
+                    <p>Silakan Login</p>
                 </div>
                 <form className="login-form" onSubmit={handleLogin}>
                     <div className="form-group">
