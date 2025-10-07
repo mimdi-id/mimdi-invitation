@@ -107,3 +107,37 @@ exports.deleteAdmin = async (req, res) => {
     }
 };
 
+/**
+ * PUT /api/admins/:id/quota
+ * (FUNGSI BARU) Super Admin memperbarui kuota undangan untuk seorang Admin.
+ */
+exports.updateAdminQuota = async (req, res) => {
+    const { id } = req.params;
+    const { newQuota } = req.body;
+
+    // Validasi input
+    if (newQuota === undefined || isNaN(parseInt(newQuota)) || newQuota < 0) {
+        return res.status(400).json({ success: false, error: 'Jumlah kuota baru diperlukan dan harus berupa angka positif.' });
+    }
+
+    try {
+        const admin = await db.User.findByPk(id);
+        if (!admin) {
+            return res.status(404).json({ success: false, error: 'Admin tidak ditemukan.' });
+        }
+        
+        // Verifikasi bahwa pengguna yang diupdate benar-benar seorang 'Admin'
+        const adminRole = await db.Role.findOne({ where: { name: 'Admin' } });
+        if(admin.roleId !== adminRole.id) {
+             return res.status(400).json({ success: false, error: 'Pengguna yang dipilih bukan seorang Admin.' });
+        }
+
+        admin.invitation_quota = parseInt(newQuota);
+        await admin.save();
+
+        res.status(200).json({ success: true, message: 'Kuota admin berhasil diperbarui.', data: admin });
+    } catch (error) {
+        console.error('Error saat memperbarui kuota admin:', error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+};

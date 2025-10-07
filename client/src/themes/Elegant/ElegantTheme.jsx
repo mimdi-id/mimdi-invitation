@@ -163,7 +163,15 @@ const ElegantTheme = ({ invitation }) => {
                             </div>
                         </section>
                     )}
-
+                    {invitation.turut_mengundang_text && (
+                    <section className="turut-mengundang-section">
+                        <h2>Turut Mengundang</h2>
+                        {/* 'white-space: pre-wrap' di CSS akan menjaga format baris baru */}
+                        <div className="turut-mengundang-names">
+                            {invitation.turut_mengundang_text}
+                        </div>
+                    </section>
+                )}
                     <RSVPSection slug={invitation.slug} />
                     
                     {musicVideoId && (

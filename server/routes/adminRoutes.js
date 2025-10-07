@@ -1,13 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const { getAllAdmins, createAdmin, updateAdmin, deleteAdmin } = require('../controllers/adminController');
+
+// Impor semua fungsi controller, termasuk yang baru
+const { 
+    getAllAdmins, 
+    createAdmin,
+    deleteAdmin,
+    updateAdminQuota // Impor fungsi baru
+} = require('../controllers/adminController');
+
 const authMiddleware = require('../middleware/authMiddleware');
 const isSuperAdmin = require('../middleware/isSuperAdmin');
 
+// Rute yang sudah ada
 router.get('/', authMiddleware, isSuperAdmin, getAllAdmins);
 router.post('/', authMiddleware, isSuperAdmin, createAdmin);
-router.put('/:id', authMiddleware, isSuperAdmin, updateAdmin);
 router.delete('/:id', authMiddleware, isSuperAdmin, deleteAdmin);
+
+// --- RUTE BARU UNTUK MENGUBAH KUOTA ---
+router.put('/:id/quota', authMiddleware, isSuperAdmin, updateAdminQuota);
+// ------------------------------------
 
 module.exports = router;
 

@@ -95,6 +95,13 @@ exports.updateInvitationDashboard = async (req, res) => {
             invitation.music_url = mediaData.music_url;
             invitation.video_url = mediaData.video_url;
         }
+
+        
+            // ... (logika file dan media tetap sama)
+            if (otherData) {
+            invitation.doa_quotes = otherData.doa_quotes;
+            invitation.turut_mengundang_text = otherData.turut_mengundang_text; // Simpan teks
+        }
         await invitation.save();
         
         // Gunakan transaction untuk memastikan semua operasi data relasional berhasil
@@ -152,10 +159,6 @@ exports.updateInvitationDashboard = async (req, res) => {
                 await db.GalleryPhoto.bulkCreate(galleryPhotoData, { transaction: t });
             }
 
-            // ... (logika file dan media tetap sama)
-            if (otherData) {
-                invitation.doa_quotes = otherData.doa_quotes; // Simpan doa/quotes
-            }
             await invitation.save();
         });
         

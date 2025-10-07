@@ -96,3 +96,9 @@ section { max-width: 800px; margin: 4rem auto; text-align: center; }
     .timeline-item::after { left: 15px; }
 }
 
+.turut-mengundang-names {
+    white-space: pre-wrap; /* Ini adalah kunci untuk menjaga format baris baru dari textarea */
+    line-height: 2;
+    font-size: 1.1rem;
+}
+

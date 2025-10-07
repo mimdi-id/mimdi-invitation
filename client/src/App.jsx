@@ -30,6 +30,7 @@ import PublicInvitationPage from './pages/PublicInvitationPage';
 
 import InvitationManagementPage from './pages/InvitationManagementPage';
 
+import OrderManagementPage from './pages/OrderManagementPage'; // Impor halaman baru
 
 // Import CSS Global
 import './App.css';
@@ -63,6 +64,7 @@ function App() {
         >
           <Route path="dashboard" element={<AdminDashboardPage />} />
           <Route path="create" element={<CreateInvitationPage />} />
+          <Route path="orders" element={<OrderManagementPage />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
         

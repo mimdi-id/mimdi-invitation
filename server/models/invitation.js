@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       // --- ASOSIASI BARU ---
       // Hubungan: Satu Undangan bisa memiliki banyak entri RSVP.
       Invitation.hasMany(models.RSVP, { as: 'rsvps', foreignKey: 'invitationId', onDelete: 'CASCADE' });
+  
     }
   }
   Invitation.init({
@@ -33,6 +34,12 @@ module.exports = (sequelize, DataTypes) => {
     music_url: DataTypes.STRING,
     video_url: DataTypes.STRING,
     live_stream_url: DataTypes.STRING,
+    // --- PENAMBAHAN KOLOM BARU ---
+    // Menyimpan seluruh teks 'Turut Mengundang' dalam satu kolom
+    turut_mengundang_text: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     doa_quotes: DataTypes.TEXT,
     show_features: {
       type: DataTypes.JSON,

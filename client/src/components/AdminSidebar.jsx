@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import './Sidebar.css'; // Bisa menggunakan styling yang sama
+import './Sidebar.css';
 
 const AdminSidebar = ({ onLogout }) => {
     return (
@@ -10,6 +10,8 @@ const AdminSidebar = ({ onLogout }) => {
             </div>
             <nav className="sidebar-nav">
                 <NavLink to="/admin/dashboard">Daftar Undangan</NavLink>
+                {/* --- LINK BARU --- */}
+                <NavLink to="/admin/orders">Kelola Pesanan</NavLink>
                 <NavLink to="/admin/create">Buat Undangan Baru</NavLink>
             </nav>
             <div className="sidebar-footer">
@@ -20,4 +22,6 @@ const AdminSidebar = ({ onLogout }) => {
         </aside>
     );
 };
+
 export default AdminSidebar;
+
