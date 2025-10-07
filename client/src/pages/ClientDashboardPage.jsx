@@ -5,6 +5,8 @@ import MempelaiForm from '../components/MempelaiForm';
 import EventSection from '../components/EventSection';
 import MediaSection from '../components/MediaSection';
 import LoveStorySection from '../components/LoveStorySection';
+import ThemeSelectionSection from '../components/ThemeSelectionSection'; // --- INI BAGIAN YANG HILANG ---
+
 import './ClientDashboardPage.css';
 
 const ClientDashboardPage = () => {
@@ -12,6 +14,7 @@ const ClientDashboardPage = () => {
     const navigate = useNavigate();
     
     const [invitationData, setInvitationData] = useState(null);
+    const [rsvps, setRsvps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('mempelai');
     
@@ -19,18 +22,37 @@ const ClientDashboardPage = () => {
     const [success, setSuccess] = useState('');
     const [galleryFiles, setGalleryFiles] = useState([]);
 
+    const fetchRsvps = useCallback(async () => {
+        if (!slug) return;
+        try {
+            const rsvpResponse = await axios.get(`http://localhost:5000/api/rsvps/${slug}`);
+            setRsvps(rsvpResponse.data.data || []);
+        } catch (rsvpError) {
+            console.error("Gagal memuat data buku tamu:", rsvpError);
+        }
+    }, [slug]);
+
     useEffect(() => {
         const storedDataString = sessionStorage.getItem(`client_auth_${slug}`);
         if (storedDataString) {
             try {
                 const data = JSON.parse(storedDataString);
-                if (!data.mempelai || data.mempelai.length < 2) { data.mempelai = [{ type: 'Pria' }, { type: 'Wanita' }]; }
-                if (!data.events) { data.events = []; }
-                if (!data.loveStories) { data.loveStories = []; }
-                if (!data.galleryPhotos) { data.galleryPhotos = []; }
+                
+                if (!data.mempelai || data.mempelai.length < 2) {
+                    data.mempelai = [
+                        data.mempelai?.find(m => m.type === 'Pria') || { type: 'Pria' },
+                        data.mempelai?.find(m => m.type === 'Wanita') || { type: 'Wanita' }
+                    ];
+                }
+                if (!data.events) data.events = [];
+                if (!data.loveStories) data.loveStories = [];
+                if (!data.galleryPhotos) data.galleryPhotos = [];
+                
                 setInvitationData(data);
+                fetchRsvps();
+
             } catch (e) {
-                console.error("Gagal parse data sesi:", e);
+                console.error("Gagal parse data sesi, sesi tidak valid:", e);
                 sessionStorage.removeItem(`client_auth_${slug}`);
                 navigate(`/u/${slug}/login`);
             }
@@ -38,49 +60,110 @@ const ClientDashboardPage = () => {
             navigate(`/u/${slug}/login`);
         }
         setLoading(false);
-    }, [slug, navigate]);
+    }, [slug, navigate, fetchRsvps]);
 
     const handleLogout = () => {
         sessionStorage.removeItem(`client_auth_${slug}`);
         navigate(`/u/${slug}/login`);
     };
 
-    const handleMempelaiUpdate = (type, data) => setInvitationData(p => ({...p, mempelai: p.mempelai.map(m => m.type === type ? data : m)}));
-    const handleEventsUpdate = (data) => setInvitationData(p => ({...p, events: data}));
-    const handleMediaUpdate = (fieldName, value) => setInvitationData(p => ({...p, [fieldName]: value}));
-    const handleLoveStoriesUpdate = (data) => setInvitationData(p => ({...p, loveStories: data}));
-    const handleGalleryUpdate = (files) => setGalleryFiles(files);
+    const handleMempelaiUpdate = (type, updatedMempelaiData) => {
+        setInvitationData(prevData => {
+            const newMempelaiArray = prevData.mempelai.map(m => 
+                m.type === type ? updatedMempelaiData : m
+            );
+            return { ...prevData, mempelai: newMempelaiArray };
+        });
+    };
+    
+    const handleEventsUpdate = (updatedEvents) => {
+        setInvitationData(prevData => ({ ...prevData, events: updatedEvents }));
+    };
+    
+    const handleMediaUpdate = (fieldName, value) => {
+        setInvitationData(prevData => ({ ...prevData, [fieldName]: value }));
+    };
+
+    const handleLoveStoriesUpdate = (updatedStories) => {
+        setInvitationData(prevData => ({ ...prevData, loveStories: updatedStories }));
+    };
+
+    const handleGalleryUpdate = (files) => {
+        setGalleryFiles(files);
+    };
 
     const handleSaveChanges = async () => {
-        setError(''); setSuccess('');
+        setError('');
+        setSuccess('');
+
         const formData = new FormData();
+        
         formData.append('mempelaiData', JSON.stringify(invitationData.mempelai));
         formData.append('eventData', JSON.stringify(invitationData.events));
         formData.append('loveStoryData', JSON.stringify(invitationData.loveStories));
         formData.append('mediaData', JSON.stringify({
-            music_url: invitationData.music_url, video_url: invitationData.video_url,
+            music_url: invitationData.music_url,
+            video_url: invitationData.video_url,
         }));
+        formData.append('otherData', JSON.stringify({
+            doa_quotes: invitationData.doa_quotes
+        }));
+
         if (invitationData.cover_image_file) {
             formData.append('cover_image', invitationData.cover_image_file);
         }
         if (galleryFiles.length > 0) {
             galleryFiles.forEach(file => formData.append('gallery_images', file));
         }
+
         try {
             const response = await axios.put(`http://localhost:5000/api/client/invitations/${slug}/dashboard`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
+
             if(response.data.success){
                 setSuccess(response.data.message);
                 const updatedData = response.data.data;
+                
+                if (!updatedData.events) updatedData.events = [];
+                if (!updatedData.loveStories) updatedData.loveStories = [];
+                if (!updatedData.galleryPhotos) updatedData.galleryPhotos = [];
+                if (!updatedData.mempelai || updatedData.mempelai.length < 2) { 
+                    updatedData.mempelai = [
+                        updatedData.mempelai?.find(m => m.type === 'Pria') || { type: 'Pria' },
+                        updatedData.mempelai?.find(m => m.type === 'Wanita') || { type: 'Wanita' }
+                    ];
+                 }
+                
                 delete updatedData.cover_image_file;
+                
                 setInvitationData(updatedData);
                 setGalleryFiles([]);
                 sessionStorage.setItem(`client_auth_${slug}`, JSON.stringify(updatedData));
+                fetchRsvps();
             }
         } catch (err) {
             setError(err.response?.data?.error || "Gagal menyimpan data.");
             console.error("Save changes error:", err);
+        }
+    };
+
+    const handleThemeSelected = async (themeId) => {
+        setSuccess(''); 
+        setError('');
+        try {
+            // Kita perlu membuat API instance di sini karena ini adalah permintaan terpisah
+            const token = sessionStorage.getItem(`client_auth_token_${slug}`); // Asumsi kita akan simpan token juga
+            const response = await axios.put(`http://localhost:5000/api/client/invitations/${slug}/theme`, { themeId });
+
+            if(response.data.success){
+                setSuccess(response.data.message);
+                const updatedData = response.data.data;
+                setInvitationData(updatedData);
+                sessionStorage.setItem(`client_auth_${slug}`, JSON.stringify(updatedData));
+            }
+        } catch (err) {
+            setError(err.response?.data?.error || "Gagal mengganti tema.");
         }
     };
 
@@ -103,6 +186,9 @@ const ClientDashboardPage = () => {
                 <button onClick={() => setActiveTab('acara')} className={activeTab === 'acara' ? 'active' : ''}>Data Acara</button>
                 <button onClick={() => setActiveTab('galeri')} className={activeTab === 'galeri' ? 'active' : ''}>Galeri & Media</button>
                 <button onClick={() => setActiveTab('cerita')} className={activeTab === 'cerita' ? 'active' : ''}>Cerita Cinta</button>
+                <button onClick={() => setActiveTab('rsvps')} className={activeTab === 'rsvps' ? 'active' : ''}>Buku Tamu ({rsvps.length})</button>
+                <button onClick={() => setActiveTab('tema')} className={activeTab === 'tema' ? 'active' : ''}>Ganti Tema</button>
+
             </nav>
 
             <div className="dashboard-content">
@@ -143,6 +229,41 @@ const ClientDashboardPage = () => {
                     <LoveStorySection
                         stories={invitationData.loveStories}
                         onUpdate={handleLoveStoriesUpdate}
+                    />
+                )}
+                
+                {activeTab === 'rsvps' && (
+                    <div className="card rsvp-list-section">
+                        <h2>Daftar Konfirmasi Kehadiran</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nama Tamu</th>
+                                    <th>Status Kehadiran</th>
+                                    <th>Ucapan & Doa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rsvps.length > 0 ? (
+                                    rsvps.map(rsvp => (
+                                        <tr key={rsvp.id}>
+                                            <td>{rsvp.guest_name}</td>
+                                            <td><span className={`status-badge status-${rsvp.attendance_status.toLowerCase().replace(' ', '-')}`}>{rsvp.attendance_status}</span></td>
+                                            <td>{rsvp.message || '-'}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr><td colSpan="3">Belum ada tamu yang mengisi buku tamu.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+                
+                {activeTab === 'tema' && (
+                    <ThemeSelectionSection 
+                        currentThemeId={invitationData.theme?.id}
+                        onThemeSelect={handleThemeSelected}
                     />
                 )}
             </div>

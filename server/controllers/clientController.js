@@ -14,6 +14,30 @@ const getFullInvitationData = async (invitationId) => {
     return invitationInstance ? invitationInstance.get({ plain: true }) : null;
 };
 
+exports.updateInvitationTheme = async (req, res) => {
+    const { slug } = req.params;
+    const { themeId } = req.body;
+
+    try {
+        const invitation = await db.Invitation.findOne({ where: { slug } });
+        if (!invitation) {
+            return res.status(404).json({ success: false, error: 'Undangan tidak ditemukan.' });
+        }
+
+        invitation.themeId = themeId;
+        await invitation.save();
+
+        // Ambil kembali data terbaru untuk dikirim ke frontend
+        const updatedData = await getFullInvitationData(invitation.id);
+        res.status(200).json({ success: true, message: 'Tema berhasil diperbarui!', data: updatedData });
+
+    } catch (error) {
+        console.error('Error saat memperbarui tema:', error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+};
+
+
 // Fungsi otentikasi klien
 exports.clientAuth = async (req, res) => {
     const { slug, pin } = req.body;

@@ -1,0 +1,87 @@
+.theme-selection-section { 
+    grid-column: 1 / -1; 
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.theme-selection-section h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+}
+
+.theme-selection-section p {
+    margin-top: -1rem;
+    margin-bottom: 2rem;
+    color: #6b7280;
+}
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.theme-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.theme-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07);
+}
+
+.theme-card.active {
+    border-color: #ff5722;
+    box-shadow: 0 10px 20px -5px rgba(255, 87, 34, 0.3);
+}
+
+.theme-preview-img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    object-position: top;
+    background-color: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.theme-info {
+    padding: 1rem 1.5rem;
+    text-align: center;
+    background-color: white;
+    margin-top: auto;
+}
+
+.theme-info h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+}
+
+.apply-theme-btn {
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(45deg, #ff8a65, #ff5722);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.apply-theme-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+}
+
+.apply-theme-btn:disabled {
+    background: #22c55e;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+

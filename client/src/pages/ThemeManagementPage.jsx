@@ -9,7 +9,11 @@ const ThemeManagementPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    
+        const [previewImageFile, setPreviewImageFile] = useState(null);
+ const handleFileChange = (e) => {
+        setPreviewImageFile(e.target.files[0]);
+    };
+
     // State untuk form, sekarang termasuk component_name
     const [formData, setFormData] = useState({
         name: '',
@@ -91,11 +95,9 @@ const ThemeManagementPage = () => {
         
         try {
             if (editingThemeId) {
-                await api.put(`/themes/${editingThemeId}`, payload);
-                setSuccess('Tema berhasil diperbarui!');
+                await api.put(`/themes/${editingThemeId}`, formDataPayload, { headers: { 'Content-Type': 'multipart/form-data' } });
             } else {
-                await api.post('/themes', payload);
-                setSuccess('Tema berhasil ditambahkan!');
+                await api.post('/themes', formDataPayload, { headers: { 'Content-Type': 'multipart/form-data' } });
             }
             resetForm();
             fetchThemes();
@@ -164,6 +166,11 @@ const ThemeManagementPage = () => {
                             <label htmlFor="config">Konfigurasi (JSON)</label>
                             <textarea id="config" name="config" value={formData.config} onChange={handleInputChange} rows="10" placeholder='Contoh: { "warnaPrimer": "#FFFFFF" }'></textarea>
                         </div>
+
+                        <div className="form-group">
+                    <label htmlFor="preview_image">Gambar Pratinjau</label>
+                    <input type="file" id="preview_image" onChange={handleFileChange} />
+                </div>
 
                         <button type="submit" className="submit-button">{editingThemeId ? 'Simpan Perubahan' : 'Tambah Tema'}</button>
                         {editingThemeId && <button type="button" onClick={resetForm} className="cancel-button">Batal Edit</button>}
