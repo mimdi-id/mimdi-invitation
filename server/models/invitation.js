@@ -1,9 +1,10 @@
 'use strict';
 const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Invitation extends Model {
     static associate(models) {
-      // Asosiasi
+      // Asosiasi yang sudah ada
       Invitation.belongsTo(models.User, { as: 'admin', foreignKey: 'adminId' });
       Invitation.belongsTo(models.User, { as: 'client', foreignKey: 'userId' });
       Invitation.belongsTo(models.Package, { as: 'package', foreignKey: 'packageId' });
@@ -13,12 +14,17 @@ module.exports = (sequelize, DataTypes) => {
       Invitation.hasMany(models.Event, { as: 'events', foreignKey: 'invitationId', onDelete: 'CASCADE' });
       Invitation.hasMany(models.GalleryPhoto, { as: 'galleryPhotos', foreignKey: 'invitationId', onDelete: 'CASCADE' });
       Invitation.hasMany(models.LoveStory, { as: 'loveStories', foreignKey: 'invitationId', onDelete: 'CASCADE' });
+
+      // --- ASOSIASI BARU ---
+      // Hubungan: Satu Undangan bisa memiliki banyak entri RSVP.
+      Invitation.hasMany(models.RSVP, { as: 'rsvps', foreignKey: 'invitationId', onDelete: 'CASCADE' });
     }
   }
   Invitation.init({
-    title: DataTypes.STRING,
-    slug: { type: DataTypes.STRING, unique: true },
-    status: DataTypes.ENUM('Draf', 'Aktif', 'Kedaluwarsa'),
+    title: { type: DataTypes.STRING, allowNull: false },
+    slug: { type: DataTypes.STRING, allowNull: false, unique: true },
+    status: { type: DataTypes.ENUM('Draf', 'Aktif', 'Kedaluwarsa'), defaultValue: 'Draf' },
+    client_pin_plain: { type: DataTypes.STRING, allowNull: true },
     activation_date: DataTypes.DATE,
     expiry_date: DataTypes.DATE,
     cover_image_url: DataTypes.STRING,
@@ -28,8 +34,6 @@ module.exports = (sequelize, DataTypes) => {
     video_url: DataTypes.STRING,
     live_stream_url: DataTypes.STRING,
     doa_quotes: DataTypes.TEXT,
-    client_pin_plain: DataTypes.STRING,
-    // Perbaikan Getter/Setter untuk JSON
     show_features: {
       type: DataTypes.JSON,
       get() {
@@ -38,7 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       set(value) { this.setDataValue('show_features', JSON.stringify(value || {})); }
     }
-  }, { sequelize, modelName: 'Invitation' });
+  }, {
+    sequelize,
+    modelName: 'Invitation',
+  });
   return Invitation;
 };
 

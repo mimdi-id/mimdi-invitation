@@ -1,95 +1,145 @@
 const db = require('../models');
 const bcrypt = require('bcryptjs');
 
-// Fungsi helper yang telah diperbaiki untuk mengambil data bersih
+// Fungsi helper untuk mengambil data undangan lengkap (tetap sama)
 const getFullInvitationData = async (invitationId) => {
     const invitationInstance = await db.Invitation.findByPk(invitationId, {
         include: [
             { model: db.User, as: 'client', attributes: ['username'] },
-            { model: db.Package, as: 'package' },
-            { model: db.Theme, as: 'theme' },
-            { model: db.Mempelai, as: 'mempelai' },
-            { model: db.Event, as: 'events' },
-            { model: db.GalleryPhoto, as: 'galleryPhotos' },
-            { model: db.LoveStory, as: 'loveStories' },
+            { model: db.Package, as: 'package' }, { model: db.Theme, as: 'theme' },
+            { model: db.Mempelai, as: 'mempelai' }, { model: db.Event, as: 'events' },
+            { model: db.GalleryPhoto, as: 'galleryPhotos' }, { model: db.LoveStory, as: 'loveStories' },
         ]
     });
-
-    // --- PERBAIKAN KRITIS DI SINI ---
-    // Konversi instance Sequelize yang kompleks menjadi objek JavaScript biasa.
-    // Ini akan membersihkan semua metadata dan fungsi internal.
     return invitationInstance ? invitationInstance.get({ plain: true }) : null;
-    // ------------------------------------
 };
 
+// Fungsi otentikasi klien
 exports.clientAuth = async (req, res) => {
     const { slug, pin } = req.body;
     if (!slug || !pin) {
         return res.status(400).json({ success: false, error: 'Slug dan PIN diperlukan.' });
     }
-
     try {
-        const trimmedSlug = slug.trim();
         const invitation = await db.Invitation.findOne({ 
-            where: { slug: trimmedSlug },
+            where: { slug: slug.trim() },
             include: { model: db.User, as: 'client' }
         });
 
-        if (!invitation || !invitation.client) {
-            return res.status(404).json({ success: false, error: 'Undangan tidak ditemukan.' });
+        if (!invitation || !invitation.client || !invitation.client.password_pin) {
+            return res.status(401).json({ success: false, error: 'Undangan tidak ditemukan atau PIN belum diatur.' });
         }
 
-        const client = invitation.client;
-        if (!client.password_pin) {
-            return res.status(401).json({ success: false, error: 'PIN untuk klien ini belum diatur.' });
-        }
-
-        const isMatch = await bcrypt.compare(pin, client.password_pin);
+        const isMatch = await bcrypt.compare(pin, invitation.client.password_pin);
         if (!isMatch) {
             return res.status(401).json({ success: false, error: 'PIN salah.' });
         }
 
-        // Sekarang kita memanggil fungsi helper yang sudah mengembalikan data bersih
         const fullInvitationData = await getFullInvitationData(invitation.id);
         res.status(200).json({ success: true, message: 'Otentikasi berhasil.', data: fullInvitationData });
-
     } catch (error) {
         console.error('Client auth error:', error);
         res.status(500).json({ success: false, error: 'Server Error' });
     }
 };
 
+/**
+ * PUT /api/client/invitations/:slug/dashboard
+ * (VERSI FINAL & PALING LENGKAP) Klien memperbarui semua data undangan.
+ */
 exports.updateInvitationDashboard = async (req, res) => {
     const { slug } = req.params;
-    const { mempelaiData } = req.body; // Kita akan terima data per bagian
+    const files = req.files;
 
     try {
+        const mempelaiData = req.body.mempelaiData ? JSON.parse(req.body.mempelaiData) : null;
+        const eventData = req.body.eventData ? JSON.parse(req.body.eventData) : null;
+        const mediaData = req.body.mediaData ? JSON.parse(req.body.mediaData) : null;
+        const loveStoryData = req.body.loveStoryData ? JSON.parse(req.body.loveStoryData) : null;
+        const otherData = req.body.otherData ? JSON.parse(req.body.otherData) : null; // Data baru
+
         const invitation = await db.Invitation.findOne({ where: { slug } });
         if (!invitation) {
             return res.status(404).json({ success: false, error: 'Undangan tidak ditemukan.' });
         }
 
-        // --- Proses Data Mempelai ---
-        if (mempelaiData && Array.isArray(mempelaiData)) {
-            // Kita akan menggunakan bulkCreate dengan opsi updateOnDuplicate
-            // Ini akan membuat data baru jika belum ada, atau mengupdate jika sudah ada.
-            await db.Mempelai.bulkCreate(mempelaiData.map(m => ({
-                ...m,
-                invitationId: invitation.id // Pastikan setiap data mempelai terhubung ke undangan yang benar
-            })), {
-                updateOnDuplicate: ["full_name", "nickname", "initials", "child_order", "parents_name", "social_media_urls", "gift_info"]
-            });
+        // --- Proses Data Media & File ---
+        if (files && files.cover_image) {
+            invitation.cover_image_url = `/uploads/${files.cover_image[0].filename}`;
         }
+        if (mediaData) {
+            invitation.music_url = mediaData.music_url;
+            invitation.video_url = mediaData.video_url;
+        }
+        await invitation.save();
         
-        // (Di sini kita akan menambahkan logika untuk bagian lain seperti Event, Gallery, dll. di masa depan)
+        // Gunakan transaction untuk memastikan semua operasi data relasional berhasil
+        await db.sequelize.transaction(async (t) => {
+            // --- Proses Data Mempelai ---
+            if (mempelaiData && Array.isArray(mempelaiData)) {
+                for (const mempelai of mempelaiData) {
+                    const payload = {
+                        full_name: mempelai.full_name || null,
+                        nickname: mempelai.nickname || null,
+                        initials: mempelai.initials || null, // Ditambahkan
+                        child_order: mempelai.child_order || null,
+                        parents_name: mempelai.parents_name || null,
+                        social_media_urls: mempelai.social_media_urls || {}, // Ditambahkan
+                        gift_info: mempelai.gift_info || {} // Ditambahkan
+                    };
+                    const [instance, created] = await db.Mempelai.findOrCreate({
+                        where: { invitationId: invitation.id, type: mempelai.type },
+                        defaults: payload, transaction: t
+                    });
+                    if (!created) { await instance.update(payload, { transaction: t }); }
+                }
+            }
 
-        // Ambil kembali data terbaru untuk dikirim ke frontend
+            // --- Proses Data Acara ---
+            if (eventData && Array.isArray(eventData)) {
+                await db.Event.destroy({ where: { invitationId: invitation.id }, transaction: t });
+                const cleanEventData = eventData
+                    .filter(event => event.title && event.title.trim() !== '')
+                    .map(event => ({ ...event, id: undefined, invitationId: invitation.id }));
+                if (cleanEventData.length > 0) {
+                    await db.Event.bulkCreate(cleanEventData, { transaction: t });
+                }
+            }
+            
+            // --- Proses Data Cerita Cinta ---
+            if (loveStoryData && Array.isArray(loveStoryData)) {
+                await db.LoveStory.destroy({ where: { invitationId: invitation.id }, transaction: t });
+                const cleanLoveStoryData = loveStoryData
+                    .filter(story => story.title && story.story)
+                    .map((story, index) => ({...story, id: undefined, story_order: index + 1, invitationId: invitation.id}));
+                if (cleanLoveStoryData.length > 0) {
+                    await db.LoveStory.bulkCreate(cleanLoveStoryData, { transaction: t });
+                }
+            }
+
+            // --- Proses Data Galeri Foto ---
+            if (files && files.gallery_images) {
+                const galleryPhotoData = files.gallery_images.map((file, index) => ({
+                    image_url: `/uploads/${file.filename}`,
+                    upload_order: index + 1,
+                    invitationId: invitation.id
+                }));
+                await db.GalleryPhoto.destroy({ where: { invitationId: invitation.id }, transaction: t });
+                await db.GalleryPhoto.bulkCreate(galleryPhotoData, { transaction: t });
+            }
+
+            // ... (logika file dan media tetap sama)
+            if (otherData) {
+                invitation.doa_quotes = otherData.doa_quotes; // Simpan doa/quotes
+            }
+            await invitation.save();
+        });
+        
         const updatedData = await getFullInvitationData(invitation.id);
-        res.status(200).json({ success: true, message: 'Data berhasil diperbarui!', data: updatedData });
+        res.status(200).json({ success: true, message: 'Data undangan berhasil diperbarui!', data: updatedData });
 
     } catch (error) {
-        console.error('Error updating invitation dashboard:', error);
+        console.error('Error saat memperbarui dasbor undangan:', error);
         res.status(500).json({ success: false, error: 'Server Error' });
     }
 };
-

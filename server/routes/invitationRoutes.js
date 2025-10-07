@@ -1,14 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { getAdminInvitations, getAllInvitations } = require('../controllers/invitationController');
+const { getAdminInvitations, getAllInvitations, getPublicInvitationBySlug } = require('../controllers/invitationController');
 const authMiddleware = require('../middleware/authMiddleware');
 const isAdmin = require('../middleware/isAdmin');
 const isSuperAdmin = require('../middleware/isSuperAdmin');
 
-// Rute untuk Admin -> Melihat undangannya sendiri
+// --- RUTE BARU UNTUK PUBLIK ---
+// Tidak memerlukan middleware otentikasi
+router.get('/public/:slug', getPublicInvitationBySlug);
+// -----------------------------
+
+// Rute untuk dasbor Admin
 router.get('/my-invitations', authMiddleware, isAdmin, getAdminInvitations);
 
-// Rute BARU untuk Super Admin -> Melihat SEMUA undangan
+// Rute untuk dasbor Super Admin
 router.get('/all', authMiddleware, isSuperAdmin, getAllInvitations);
 
 module.exports = router;

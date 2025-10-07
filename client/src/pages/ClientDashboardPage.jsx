@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import MempelaiForm from '../components/MempelaiForm';
+import EventSection from '../components/EventSection';
+import MediaSection from '../components/MediaSection';
+import LoveStorySection from '../components/LoveStorySection';
 import './ClientDashboardPage.css';
 
 const ClientDashboardPage = () => {
@@ -14,22 +17,20 @@ const ClientDashboardPage = () => {
     
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [galleryFiles, setGalleryFiles] = useState([]);
 
     useEffect(() => {
         const storedDataString = sessionStorage.getItem(`client_auth_${slug}`);
         if (storedDataString) {
             try {
                 const data = JSON.parse(storedDataString);
-                
-                if (!data.mempelai || data.mempelai.length < 2) {
-                    data.mempelai = [
-                        data.mempelai?.find(m => m.type === 'Pria') || { type: 'Pria' },
-                        data.mempelai?.find(m => m.type === 'Wanita') || { type: 'Wanita' }
-                    ];
-                }
+                if (!data.mempelai || data.mempelai.length < 2) { data.mempelai = [{ type: 'Pria' }, { type: 'Wanita' }]; }
+                if (!data.events) { data.events = []; }
+                if (!data.loveStories) { data.loveStories = []; }
+                if (!data.galleryPhotos) { data.galleryPhotos = []; }
                 setInvitationData(data);
             } catch (e) {
-                console.error("Gagal parse data sesi, sesi tidak valid:", e);
+                console.error("Gagal parse data sesi:", e);
                 sessionStorage.removeItem(`client_auth_${slug}`);
                 navigate(`/u/${slug}/login`);
             }
@@ -38,31 +39,43 @@ const ClientDashboardPage = () => {
         }
         setLoading(false);
     }, [slug, navigate]);
-    
+
     const handleLogout = () => {
         sessionStorage.removeItem(`client_auth_${slug}`);
         navigate(`/u/${slug}/login`);
     };
 
-    const handleMempelaiUpdate = (index, updatedMempelai) => {
-        const newMempelaiArray = [...invitationData.mempelai];
-        newMempelaiArray[index] = updatedMempelai;
-        setInvitationData({ ...invitationData, mempelai: newMempelaiArray });
-    };
+    const handleMempelaiUpdate = (type, data) => setInvitationData(p => ({...p, mempelai: p.mempelai.map(m => m.type === type ? data : m)}));
+    const handleEventsUpdate = (data) => setInvitationData(p => ({...p, events: data}));
+    const handleMediaUpdate = (fieldName, value) => setInvitationData(p => ({...p, [fieldName]: value}));
+    const handleLoveStoriesUpdate = (data) => setInvitationData(p => ({...p, loveStories: data}));
+    const handleGalleryUpdate = (files) => setGalleryFiles(files);
 
     const handleSaveChanges = async () => {
-        setError('');
-        setSuccess('');
+        setError(''); setSuccess('');
+        const formData = new FormData();
+        formData.append('mempelaiData', JSON.stringify(invitationData.mempelai));
+        formData.append('eventData', JSON.stringify(invitationData.events));
+        formData.append('loveStoryData', JSON.stringify(invitationData.loveStories));
+        formData.append('mediaData', JSON.stringify({
+            music_url: invitationData.music_url, video_url: invitationData.video_url,
+        }));
+        if (invitationData.cover_image_file) {
+            formData.append('cover_image', invitationData.cover_image_file);
+        }
+        if (galleryFiles.length > 0) {
+            galleryFiles.forEach(file => formData.append('gallery_images', file));
+        }
         try {
-            const response = await axios.put(`http://localhost:5000/api/client/invitations/${slug}/dashboard`, {
-                mempelaiData: invitationData.mempelai
+            const response = await axios.put(`http://localhost:5000/api/client/invitations/${slug}/dashboard`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-
             if(response.data.success){
                 setSuccess(response.data.message);
                 const updatedData = response.data.data;
-                // Perbarui state lokal dan sessionStorage dengan data terbaru dari server
-                setInvitationData(updatedData); 
+                delete updatedData.cover_image_file;
+                setInvitationData(updatedData);
+                setGalleryFiles([]);
                 sessionStorage.setItem(`client_auth_${slug}`, JSON.stringify(updatedData));
             }
         } catch (err) {
@@ -71,7 +84,6 @@ const ClientDashboardPage = () => {
         }
     };
 
-    // Tampilkan pesan loading jika data belum siap
     if (loading || !invitationData) {
         return <div className="loading-spinner">Memuat dasbor...</div>;
     }
@@ -100,18 +112,39 @@ const ClientDashboardPage = () => {
                 {activeTab === 'mempelai' && (
                     <div className="mempelai-forms">
                         <MempelaiForm 
+                            type="Pria"
                             mempelai={invitationData.mempelai.find(m => m.type === 'Pria')}
-                            onUpdate={(data) => handleMempelaiUpdate(invitationData.mempelai.findIndex(m => m.type === 'Pria'), data)} 
+                            onUpdate={(data) => handleMempelaiUpdate('Pria', data)} 
                         />
                         <MempelaiForm 
+                            type="Wanita"
                             mempelai={invitationData.mempelai.find(m => m.type === 'Wanita')}
-                            onUpdate={(data) => handleMempelaiUpdate(invitationData.mempelai.findIndex(m => m.type === 'Wanita'), data)} 
+                            onUpdate={(data) => handleMempelaiUpdate('Wanita', data)} 
                         />
                     </div>
                 )}
-                {activeTab === 'acara' && <div className="card"><p>Bagian untuk mengelola data acara akan muncul di sini.</p></div>}
-                {activeTab === 'galeri' && <div className="card"><p>Bagian untuk mengunggah foto galeri akan muncul di sini.</p></div>}
-                {activeTab === 'cerita' && <div className="card"><p>Bagian untuk menulis segmen cerita cinta akan muncul di sini.</p></div>}
+                
+                {activeTab === 'acara' && (
+                    <EventSection 
+                        events={invitationData.events}
+                        onUpdate={handleEventsUpdate}
+                    />
+                )}
+                
+                {activeTab === 'galeri' && (
+                    <MediaSection 
+                        invitation={invitationData}
+                        onUpdate={handleMediaUpdate}
+                        onGalleryUpdate={handleGalleryUpdate}
+                    />
+                )}
+
+                {activeTab === 'cerita' && (
+                    <LoveStorySection
+                        stories={invitationData.loveStories}
+                        onUpdate={handleLoveStoriesUpdate}
+                    />
+                )}
             </div>
         </div>
     );

@@ -1,60 +1,202 @@
-.client-dashboard {
-    background-color: #f9fafb;
-    min-height: 100vh;
-    padding: 2rem;
-    box-sizing: border-box;
+/* ... (kode CSS sebelumnya tetap sama) ... */
+
+/* --- STYLING BARU UNTUK BAGIAN ACARA --- */
+.event-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
-.client-header {
+.event-card {
+    padding: 2rem;
+}
+
+.event-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid #e5e7eb;
 }
 
-.client-header h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #111827;
+.event-card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1f2937;
 }
 
-.client-header .logout-button {
-    padding: 0.6rem 1.2rem;
-    border: none;
-    background: linear-gradient(45deg, #ff5252, #ff1744);
-    color: white;
+.remove-button {
+    background: none;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 0.5rem 1rem;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 0.9rem;
     font-weight: 600;
     transition: all 0.2s;
 }
 
-.client-header .logout-button:hover {
-     box-shadow: 0 4px 12px rgba(255, 82, 82, 0.4);
-     transform: translateY(-2px);
+.remove-button:hover {
+    background-color: #ef4444;
+    color: white;
 }
 
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+.add-event-button {
+    width: 100%;
+    padding: 1rem;
+    border: 2px dashed #d1d5db;
+    background-color: #f9fafb;
+    color: #4b5563;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.add-event-button:hover {
+    border-color: #ff8a65;
+    background-color: #fff7ed;
+    color: #ff5722;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #ff8a65;
+    box-shadow: 0 0 0 3px rgba(255, 138, 101, 0.2);
+}
+
+/* --- STYLING BARU UNTUK BAGIAN MEDIA --- */
+.media-section .image-preview {
+    margin-top: 1rem;
+    max-width: 300px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.media-section .image-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.story-section {
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
 }
 
-.form-section.card {
-    background-color: #ffffff;
-    border-radius: 12px;
+.story-card {
     padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
-    border: 1px solid #e5e7eb;
 }
 
-.form-section h2 {
+.story-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.story-card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1f2937;
+}
+
+/* --- STYLING BARU UNTUK PREVIEW GALERI DI DASBOR --- */
+.gallery-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.gallery-preview-item {
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+.gallery-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sub-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4b5563;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* --- STYLING BARU UNTUK TABEL RSVP DI DASBOR --- */
+.rsvp-list-section {
+    grid-column: 1 / -1; /* Membuat tabel memenuhi lebar grid */
+}
+
+.rsvp-list-section h2 {
     font-size: 1.25rem;
     font-weight: 600;
     margin-top: 0;
     margin-bottom: 1.5rem;
     color: #1f2937;
 }
+
+.rsvp-list-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.rsvp-list-section thead {
+    background-color: #f9fafb;
+}
+
+.rsvp-list-section th, 
+.rsvp-list-section td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.rsvp-list-section th {
+    font-weight: 600;
+    color: #4b5563;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.rsvp-list-section tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Menggunakan kembali style status-badge dari file lain jika ada */
+.status-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-hadir { background-color: #dcfce7; color: #166534; }
+.status-ragu-ragu { background-color: #fef9c3; color: #854d0e; }
+.status-tidak-hadir { background-color: #fee2e2; color: #991b1b; }

@@ -1,8 +1,8 @@
-version: '3.8'
+# Hapus baris 'version' karena sudah usang
 services:
-  db: # <- INI NAMA SERVICE-NYA
+  db_mimdi:
     image: mysql:8.0
-    container_name: mimdi_db
+    container_name: mimdi_db_container
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: mimdi123
@@ -10,13 +10,13 @@ services:
       MYSQL_USER: mimdi
       MYSQL_PASSWORD: mimdi123
     ports:
-      - "3306:3306"
+      - "3307:3306" # <-- PERUBAHAN KRITIS DI SINI
     volumes:
       - mimdi-db-data:/var/lib/mysql
 
   adminer:
     image: adminer
-    container_name: mimdi_adminer
+    container_name: mimdi_adminer_container
     restart: always
     ports:
       - "8080:8080"
