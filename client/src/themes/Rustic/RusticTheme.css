@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Lato&display=swap');
+
+.rustic-theme-body {
+    background-color: #EFEBE9; /* Coklat muda */
+    color: #4E342E; /* Coklat tua */
+    font-family: 'Lato', sans-serif;
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.rustic-header {
+    border: 2px dashed #8D6E63;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.rustic-header p {
+    font-size: 1rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.rustic-header h1 {
+    font-family: 'Marcellus', serif;
+    font-size: 4rem;
+    margin: 1rem 0;
+}
+
+.rustic-header span {
+    font-size: 1.2rem;
+}
+
+.rustic-content {
+    line-height: 1.8;
+}
+
