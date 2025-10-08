@@ -1,18 +1,25 @@
-/* * File: client/src/App.css
+/*
+ * File: client/src/App.css
  * Deskripsi: File CSS global untuk aplikasi React.
- * Berisi reset dasar, gaya font, dan kelas utilitas.
+ * HANYA berisi reset dasar, gaya font, dan kelas utilitas umum.
+ * TIDAK ADA layout spesifik di sini.
  */
 
 /* Reset dasar dan gaya untuk elemen root */
 body, html, #root {
     margin: 0;
     padding: 0;
-    height: 100%;
-    font-family: 'Inter', sans-serif; /* Menggunakan font Inter sesuai rencana */
-    background-color: #f9fafb; /* Latar belakang abu-abu sangat muda untuk seluruh aplikasi */
-    color: #111827; /* Warna teks default */
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb; /* Latar belakang default */
+    color: #111827;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
 /* Kelas utilitas untuk loading spinner */
@@ -20,25 +27,12 @@ body, html, #root {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Mengisi seluruh tinggi layar */
+    height: 100vh;
     font-size: 1.5rem;
-    color: #4b5563; /* Warna abu-abu gelap */
-    font-weight: 500;
+    color: #4b5563;
 }
 
-/* Kelas utilitas untuk pesan error */
-.error-message {
-    color: #ef4444; /* Merah untuk error */
-    font-size: 0.875rem; /* 14px */
-    margin-top: 0.5rem; /* Jarak atas 8px */
-    text-align: center;
-}
-
-/* Kelas utilitas untuk pesan sukses */
-.success-message {
-    color: #22c55e; /* Hijau untuk sukses */
-    font-size: 0.875rem; /* 14px */
-    margin-top: 0.5rem;
-    text-align: center;
-}
+/* Kelas utilitas untuk pesan error/sukses */
+.error-message { color: #ef4444; font-size: 0.875rem; margin-top: 0.5rem; }
+.success-message { color: #22c55e; font-size: 0.875rem; margin-top: 0.5rem; }
 

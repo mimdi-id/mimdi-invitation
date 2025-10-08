@@ -12,11 +12,10 @@ const authMiddleware = require('../middleware/authMiddleware');
 const isSuperAdmin = require('../middleware/isSuperAdmin');
 const upload = require('../middleware/upload');
 
-// --- PERBAIKAN DI SINI ---
-// Rute ini sekarang bisa diakses oleh SEMUA pengguna yang sudah login
-// (Kita akan memperbaikinya agar tidak memerlukan token sama sekali)
-// Untuk sekarang, mari kita hapus semua middleware agar publik
+// --- PERUBAHAN DI SINI (jika belum publik) ---
+// Rute ini sekarang menjadi PUBLIK, tidak memerlukan login.
 router.get('/', getAllThemes);
+// ------------------------------------------
 
 // Rute untuk membuat, mengupdate, dan menghapus tetap hanya untuk Super Admin
 router.post('/', authMiddleware, isSuperAdmin, upload.single('preview_image'), createTheme);

@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // --- Import Komponen Halaman dan Layout ---
+import LandingPage from './pages/LandingPage'; // Halaman utama kita
+
 
 // Komponen Umum
 import LoginPage from './pages/LoginPage';
@@ -39,7 +41,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        
+        <Route path="/" element={<LandingPage />} />
+
         {/* === RUTE PUBLIK === */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/u/:slug/login" element={<ClientLoginPage />} />
@@ -75,7 +78,7 @@ function App() {
         />
         
         {/* === RUTE FALLBACK === */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
     </Router>

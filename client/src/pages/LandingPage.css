@@ -1,0 +1,128 @@
+/* Styling utama untuk LandingPage */
+.landing-page {
+    background-color: #FFF7F2;
+    color: #4A4A4A;
+    overflow-x: hidden; /* Mencegah scroll horizontal */
+}
+
+/* --- KELAS PEMBUNGKUS KONSISTEN --- */
+.landing-container {
+    max-width: 1200px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.25srem;
+    padding-right: 0.25srem;
+    box-sizing: border-box;
+}
+/* ---------------------------------- */
+
+/* Hero Section */
+.hero-section-landing {
+    padding: 4rem 0;
+}
+.hero-section-landing .landing-container {
+    display: flex;
+    flex-direction: column; /* Default untuk mobile */
+    align-items: center;
+    text-align: center;
+    gap: 2rem;
+}
+
+/* Layout 2 kolom hanya di desktop */
+@media (min-width: 992px) {
+    .hero-section-landing .landing-container {
+        flex-direction: row;
+        text-align: left;
+    }
+}
+
+.hero-content { flex: 1; }
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    line-height: 1.2;
+    color: #1A202C;
+}
+@media (min-width: 768px) { .hero-title { font-size: 3.5rem; } }
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+@media (min-width: 992px) { .hero-subtitle { margin-left: 0; } }
+
+.hero-buttons { display: flex; gap: 1rem; justify-content: center; }
+@media (min-width: 992px) { .hero-buttons { justify-content: flex-start; } }
+
+.hero-image { flex: 1; text-align: center; width: 100%; max-width: 450px; margin-top: 2rem; }
+@media (min-width: 992px) { .hero-image { flex: 0 0 40%; margin-top: 0; } }
+.hero-image img { width: 100%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+/* Styling Section Umum */
+.landing-section {
+    padding: 4rem 0;
+}
+.landing-section .landing-container { text-align: center; }
+.landing-section:nth-child(even) { background-color: #FFFFFF; }
+.section-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #1A202C; margin-bottom: 1rem; }
+@media (min-width: 768px) { .section-title { font-size: 2.8rem; } }
+
+.section-subtitle { font-size: 1.1rem; color: #718096; max-width: 600px; margin: 0 auto 3rem auto; }
+
+/* Galeri Tema & Tabel Harga */
+.theme-gallery-grid, .pricing-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.pricing-card {
+    background-color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    border: 2px solid transparent;
+    transition: transform 0.3s, border-color 0.3s;
+    text-align: center; /* Pastikan konten kartu di tengah */
+}
+.pricing-card:hover {
+    transform: scale(1.05);
+    border-color: #FF8A65;
+}
+
+.pricing-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.pricing-card .price {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #FF5722;
+    margin: 1rem 0 2rem 0;
+}
+
+.pricing-card ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2.5rem;
+    text-align: left;
+}
+
+.pricing-card li {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+.pricing-card li::before {
+    content: '✔';
+    color: #22c55e;
+    margin-right: 0.8rem;
+    font-weight: 900;
+}
+

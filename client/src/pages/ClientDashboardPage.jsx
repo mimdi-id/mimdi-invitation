@@ -205,7 +205,27 @@ const ClientDashboardPage = () => {
                 )}
                 
                 {activeTab === 'galeri' && (
-                    <MediaSection invitation={invitationData} onUpdate={handleMediaUpdate} onGalleryUpdate={handleGalleryUpdate} />
+                    <>
+                        <MediaSection 
+                            invitation={invitationData}
+                            onUpdate={handleMediaUpdate}
+                            onGalleryUpdate={handleGalleryUpdate}
+                        />
+
+                        <div className="card" style={{marginTop: '2rem'}}>
+                            <h2>Doa / Kutipan</h2>
+                            <div className="form-group">
+                                <label>Tampilkan Doa atau Kutipan di Undangan</label>
+                                <textarea 
+                                    name="doa_quotes" 
+                                    rows="4" 
+                                    value={invitationData.doa_quotes || ''}
+                                    onChange={(e) => handleMediaUpdate('doa_quotes', e.target.value)}
+                                    placeholder="Contoh: Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri..."
+                                ></textarea>
+                            </div>
+                        </div>
+                    </>
                 )}
 
                 {activeTab === 'cerita' && (

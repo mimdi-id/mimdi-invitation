@@ -1,0 +1,97 @@
+.navbar-landing {
+    background-color: rgba(255, 247, 242, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 1rem 0; /* Background akan full-width */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    width: 100%;
+}
+
+/* Container ini akan menjaga konten navbar tetap sejajar */
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 2rem; /* Padding horizontal konsisten */
+    box-sizing: border-box;
+}
+
+.navbar-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1A202C;
+    text-decoration: none;
+}
+
+.navbar-menu {
+    display: none; /* Default untuk mobile */
+}
+
+/* Hanya tampilkan menu di layar yang lebih besar */
+@media (min-width: 768px) {
+    .navbar-menu {
+        display: flex;
+        gap: 2rem;
+    }
+}
+
+
+.navbar-link {
+    text-decoration: none;
+    color: #4A4A4A;
+    font-weight: 500;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.navbar-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #FF5722;
+    transition: width 0.3s;
+}
+
+.navbar-link:hover::after {
+    width: 100%;
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+
+.btn-login {
+    padding: 0.6rem 1.5rem;
+    border: 2px solid #FF5722;
+    color: #FF5722;
+    background-color: transparent;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.btn-login:hover {
+    background-color: #FF5722;
+    color: white;
+}
+
+.btn-register {
+    padding: 0.6rem 1.5rem;
+    background: linear-gradient(45deg, #FF8A65, #FF5722);
+    color: white;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 2px solid transparent;
+}
