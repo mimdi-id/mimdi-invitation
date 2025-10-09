@@ -1,25 +1,40 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import './Sidebar.css';
+// FIX: Mencoba path impor ikon yang berbeda untuk mengatasi masalah resolusi
+import { 
+    FaUserShield,
+    FaBoxOpen, 
+    FaPalette, 
+    FaFileInvoice,
+} from 'react-icons/fa'; 
+// FIX: Menggunakan path absolut dari root src untuk memastikan file ditemukan
+import '/src/styling/Dashboard.css';
 
-const Sidebar = ({ onLogout }) => {
+const Sidebar = ({ isCollapsed }) => {
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
             <div className="sidebar-header">
-                <h2>Mimdi Admin</h2>
+                <img src="/logo.svg" alt="Mimdi Logo" className="sidebar-logo" />
+                {!isCollapsed && <h1>Mimdi Admin</h1>}
             </div>
             <nav className="sidebar-nav">
-                <NavLink to="/dashboard/admins">Kelola Admin</NavLink>
-                {/* --- Link BARU di sini --- */}
-                <NavLink to="/dashboard/invitations">Semua Undangan</NavLink>
-                <NavLink to="/dashboard/packages">Kelola Paket</NavLink>
-                <NavLink to="/dashboard/themes">Kelola Tema</NavLink>
+                <NavLink to="/dashboard/admins" title="Kelola Admin">
+                    <FaUserShield />
+                    <span>Kelola Admin</span>
+                </NavLink>
+                <NavLink to="/dashboard/invitations" title="Semua Undangan">
+                    <FaFileInvoice />
+                    <span>Semua Undangan</span>
+                </NavLink>
+                <NavLink to="/dashboard/packages" title="Kelola Paket">
+                    <FaBoxOpen />
+                    <span>Kelola Paket</span>
+                </NavLink>
+                <NavLink to="/dashboard/themes" title="Kelola Tema">
+                    <FaPalette />
+                    <span>Kelola Tema</span>
+                </NavLink>
             </nav>
-            <div className="sidebar-footer">
-                <button onClick={onLogout} className="logout-button">
-                    Logout
-                </button>
-            </div>
         </aside>
     );
 };

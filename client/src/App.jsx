@@ -22,7 +22,6 @@ import AdminPrivateRoute from './components/AdminPrivateRoute';
 // ---------------------------------
 import AdminDashboardLayout from './pages/AdminDashboardLayout';
 import AdminDashboardPage from './pages/AdminDashboardPage';
-import CreateInvitationPage from './pages/CreateInvitationPage';
 
 // Komponen untuk Klien
 import ClientLoginPage from './pages/ClientLoginPage';
@@ -66,7 +65,6 @@ function App() {
           element={ <AdminPrivateRoute><AdminDashboardLayout /></AdminPrivateRoute> }
         >
           <Route path="dashboard" element={<AdminDashboardPage />} />
-          <Route path="create" element={<CreateInvitationPage />} />
           <Route path="orders" element={<OrderManagementPage />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>

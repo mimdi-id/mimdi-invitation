@@ -1,0 +1,355 @@
+/*
+
+File: client/src/styling/Dashboard.css
+
+Deskripsi: File styling terpusat untuk semua komponen dan layout dasbor.
+*/
+
+/* === ROOT & FONT === */
+@import url('https://www.google.com/search?q=https://fonts.googleapis.com/css2%3Ffamily%3DInter:wght%40400%3B500%3B600%3B700%26display%3Dswap');
+
+:root {
+--primary-color: #ff5722;
+--primary-hover: #e64a19;
+--primary-light: #fff0e9;
+--accent-color: #ff8a65;
+--background-grey: #f8f9fa;
+--card-background: #ffffff;
+--text-primary: #212529;
+--text-secondary: #6c757d;
+--border-color: #e9ecef;
+
+/* Variabel Sidebar Baru (Putih) */
+--sidebar-bg: #ffffff;
+--sidebar-text: #495057;
+--sidebar-hover-bg: #f1f3f5;
+--sidebar-active-bg: var(--primary-light);
+--sidebar-active-text: var(--primary-color);
+--sidebar-border: #dee2e6;
+
+}
+
+/* === LAYOUT UTAMA DASBOR === */
+.dashboard-layout {
+display: flex;
+min-height: 100vh;
+background-color: var(--background-grey);
+}
+
+.dashboard-main-content {
+flex-grow: 1;
+display: flex;
+flex-direction: column;
+transition: margin-left 0.3s ease;
+}
+
+/* === HEADER UTAMA === */
+.dashboard-header {
+background-color: var(--card-background);
+border-bottom: 1px solid var(--border-color);
+padding: 0.75rem 1.5rem;
+display: flex;
+align-items: center;
+justify-content: space-between;
+position: sticky;
+top: 0;
+z-index: 1000;
+height: 65px;
+}
+
+.header-left, .header-right {
+display: flex;
+align-items: center;
+gap: 1rem;
+}
+
+.hamburger-menu {
+background: none;
+border: none;
+cursor: pointer;
+font-size: 1.5rem;
+color: var(--text-primary);
+padding: 0.5rem;
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.hamburger-menu:hover {
+background-color: var(--background-grey);
+}
+
+.header-title {
+font-size: 1.5rem;
+font-weight: 600;
+margin: 0;
+color: var(--text-primary);
+}
+
+.logout-icon-button {
+background: none;
+border: none;
+cursor: pointer;
+font-size: 1.3rem;
+color: var(--text-secondary);
+padding: 0.5rem;
+border-radius: 8px;
+}
+
+.logout-icon-button:hover {
+color: var(--primary-color);
+background-color: var(--background-grey);
+}
+
+.dashboard-page-content {
+padding: 1.5rem;
+flex-grow: 1;
+}
+
+/* === SIDEBAR PUTIH === */
+.sidebar {
+width: 260px;
+background-color: var(--sidebar-bg);
+color: var(--sidebar-text);
+display: flex;
+flex-direction: column;
+flex-shrink: 0;
+transition: width 0.3s ease;
+border-right: 1px solid var(--sidebar-border);
+}
+
+.sidebar.collapsed {
+width: 80px;
+}
+
+.sidebar-header {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+padding: 0 1.5rem;
+height: 64px; /* Samakan dengan tinggi header */
+border-bottom: 1px solid var(--sidebar-border);
+}
+
+.sidebar-logo {
+width: 35px;
+height: 35px;
+flex-shrink: 0;
+}
+
+.sidebar-header h1 {
+font-size: 1.25rem;
+font-weight: 600;
+margin: 0;
+color: var(--text-primary); /* Ubah warna teks jadi gelap */
+white-space: nowrap;
+opacity: 1;
+transition: opacity 0.2s ease;
+}
+
+.sidebar.collapsed .sidebar-header h1 {
+opacity: 0;
+display: none;
+}
+
+.sidebar-nav {
+flex-grow: 1;
+padding-top: 1rem;
+}
+
+.sidebar-nav a {
+display: flex;
+align-items: center;
+gap: 1rem;
+padding: 0.85rem 1.5rem;
+color: var(--sidebar-text);
+text-decoration: none;
+font-weight: 500;
+border-radius: 8px;
+margin: 0.25rem 0.75rem;
+transition: background-color 0.2s, color 0.2s;
+white-space: nowrap;
+overflow: hidden;
+}
+
+.sidebar-nav a:hover {
+background-color: var(--sidebar-hover-bg);
+color: var(--text-primary);
+}
+
+.sidebar-nav a.active {
+background-color: var(--sidebar-active-bg);
+color: var(--sidebar-active-text);
+font-weight: 600;
+}
+
+.sidebar-nav a svg {
+font-size: 1.3rem;
+flex-shrink: 0;
+transition: font-size 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-nav a {
+justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-nav a svg {
+font-size: 1.8rem;
+margin: 0;
+}
+
+.sidebar.collapsed .sidebar-nav a span {
+display: none;
+}
+
+/* === KONTEN HALAMAN (CARD, FORM, TABEL) === */
+.management-page {
+display: flex;
+flex-direction: column;
+gap: 1.5rem;
+}
+
+.card {
+background-color: var(--card-background);
+border-radius: 12px;
+border: 1px solid var(--border-color);
+padding: 1.5rem;
+box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+.card h2 {
+font-size: 1.25rem;
+font-weight: 600;
+margin: 0;
+}
+
+/* Header Tabel (Judul + Tombol) */
+.table-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 1.5rem;
+border-bottom: 1px solid var(--border-color);
+padding-bottom: 1rem;
+}
+
+.add-new-button {
+background-color: var(--primary-color);
+color: white;
+padding: 0.6rem 1.2rem;
+border: none;
+border-radius: 8px;
+font-size: 0.9rem;
+font-weight: 600;
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+transition: background-color 0.2s;
+}
+.add-new-button:hover { background-color: var(--primary-hover); }
+
+/* Form Styling */
+.form-group { margin-bottom: 1.25rem; }
+.form-group label {
+display: block;
+font-weight: 500;
+margin-bottom: 0.5rem;
+color: var(--text-primary);
+}
+.form-group input, .form-group select, .form-group textarea {
+width: 100%;
+padding: 0.75rem 1rem;
+border: 1px solid var(--border-color);
+border-radius: 8px;
+font-size: 1rem;
+transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+outline: none;
+border-color: var(--primary-color);
+box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.2);
+}
+
+/* Table Styling */
+table {
+width: 100%;
+border-collapse: collapse;
+}
+thead th {
+text-align: left;
+padding: 0.75rem 1rem;
+background-color: var(--background-grey);
+border-bottom: 2px solid var(--border-color);
+font-weight: 600;
+font-size: 0.875rem;
+text-transform: uppercase;
+color: var(--text-secondary);
+}
+tbody td {
+padding: 1rem;
+border-bottom: 1px solid var(--border-color);
+}
+tbody tr:last-child td { border-bottom: none; }
+
+.action-buttons { display: flex; gap: 0.5rem; }
+.edit-button-icon {
+background: none;
+border: none;
+color: var(--text-secondary);
+font-size: 1.1rem;
+cursor: pointer;
+padding: 0.5rem;
+border-radius: 50%;
+}
+.edit-button-icon:hover {
+background-color: var(--sidebar-hover-bg);
+color: var(--primary-color);
+}
+
+/* Banner Notifikasi */
+.success-banner {
+background-color: #d1fae5;
+color: #065f46;
+padding: 1rem;
+border-radius: 8px;
+margin-bottom: 1rem;
+font-weight: 500;
+}
+
+/* MODAL STYLING */
+.modal-overlay {
+position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+background-color: rgba(0, 0, 0, 0.6);
+display: flex; justify-content: center; align-items: center;
+z-index: 2000;
+}
+.modal-content {
+background: white; padding: 2rem; border-radius: 12px;
+width: 90%; max-width: 500px;
+box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+.modal-header {
+display: flex; justify-content: space-between; align-items: center;
+border-bottom: 1px solid var(--border-color);
+padding-bottom: 1rem; margin-bottom: 1rem;
+}
+.modal-title { font-size: 1.25rem; font-weight: 600; margin: 0; }
+.modal-close-button {
+background: none; border: none; font-size: 1.5rem;
+cursor: pointer; color: var(--text-secondary);
+}
+.modal-footer {
+display: flex; justify-content: flex-end; gap: 0.75rem;
+margin-top: 1.5rem;
+}
+.modal-footer button {
+padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600;
+border: none; cursor: pointer;
+}
+.modal-footer .confirm-button {
+background-color: var(--primary-color); color: white;
+}
+.modal-footer .confirm-button:hover { background-color: var(--primary-hover); }
+.modal-footer .cancel-btn { background-color: #e9ecef; }

@@ -3,13 +3,29 @@
  * Deskripsi: Styling KHUSUS untuk komponen ElegantTheme.
  * Semua aturan diawali dengan .elegant-theme-body untuk mencegah kebocoran gaya.
  */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Work+Sans:wght@300;400;500;700&family=Tangerine:wght@400;700&display=swap');
 
 .elegant-theme-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #fdfaf6;
+    font-family: 'Work Sans', sans-serif; /* Diubah dari Poppins menjadi Work Sans */
+    font-size: 14px; /* Ukuran font diatur menjadi 14px */
+    background-color: #f1f1f1; /* Background Isolasi */
     color: #4a4a4a;
     line-height: 1.8;
+    min-height: 100vh;
+    /* Memastikan konten terpusat jika layar sangat lebar */
+    display: flex;
+    justify-content: center;
+}
+
+/* KONTEN UTAMA - Kontainer dengan Lebar Maksimal 500px */
+.elegant-theme-body .elegant-theme-container {
+    max-width: 500px; /* Batas Lebar Utama 500px (Terisolasi) */
+    width: 100%;
+    margin: 0 auto; /* Tengah secara horizontal */
+    min-height: 100vh;
+    /* Background tema asli (Putih/Krem) diterapkan di sini */
+    background-color: #fdfaf6;
+    /* Shadow dihilangkan sesuai permintaan */
 }
 
 /* Loader dan Halaman Error di dalam tema (jika diperlukan) */
@@ -17,9 +33,13 @@
     /* ... styling ... */
 }
 
-/* Cover Section */
+/* ======================================================= */
+/* COVER SECTION (Perbaikan Tata Letak dan Teks)          */
+/* ======================================================= */
 .elegant-theme-body .cover-section {
-    height: 100vh;
+    /* Tinggi 100vh agar memenuhi layar saat pertama dimuat */
+    height: 100vh; 
+    width: 100%; /* Penting untuk responsivitas penuh */
     background-size: cover;
     background-position: center;
     display: flex;
@@ -27,10 +47,30 @@
     align-items: center;
     text-align: center;
     color: white;
+    position: relative; 
+    z-index: 10;
 }
-.elegant-theme-body .cover-overlay { background-color: rgba(0, 0, 0, 0.5); padding: 2rem; border-radius: 12px; }
-.elegant-theme-body .cover-intro { font-size: 1.2rem; letter-spacing: 2px; }
-.elegant-theme-body .cover-names { font-family: 'Playfair Display', serif; font-size: 4rem; margin: 1rem 0; }
+.elegant-theme-body .cover-overlay { 
+    background-color: rgba(0, 0, 0, 0.5); 
+    padding: 3rem 1.5rem; /* Padding lebih besar di desktop/mobile */
+    border-radius: 12px; 
+    width: 80%; /* Batas lebar overlay */
+    max-width: 400px;
+    margin: auto;
+}
+.elegant-theme-body .cover-intro { 
+    font-size: 1rem; 
+    letter-spacing: 2px; 
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+}
+.elegant-theme-body .cover-names { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 3rem; /* Diperkecil agar lebih responsif */
+    margin: 1rem 0 1.5rem 0; 
+    line-height: 1.2;
+    font-weight: 700;
+}
 .elegant-theme-body .open-invitation-btn {
     padding: 0.8rem 2rem; border: 2px solid white; background-color: transparent;
     color: white; font-size: 1rem; font-weight: 500; border-radius: 50px;
@@ -40,13 +80,28 @@
 .elegant-theme-body .guest-greeting {
     background-color: rgba(255, 255, 255, 0.1); padding: 0.5rem 1.5rem;
     border-radius: 8px; margin-bottom: 2rem; border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-block; /* Membuat div mengikuti konten */
 }
 .elegant-theme-body .guest-greeting p { margin: 0; font-size: 0.9rem; }
 .elegant-theme-body .guest-greeting h3 { margin: 0.2rem 0 0 0; font-size: 1.5rem; font-weight: 600; }
 
-/* Main Content */
+/* LOGIKA UI: Menyembunyikan tombol setelah undangan dibuka (invitation-opened class) */
+.elegant-theme-body .cover-section.invitation-opened .open-invitation-btn {
+    display: none;
+}
+
+/* ======================================================= */
+/* MAIN CONTENT (Perbaikan Tinggi Minimum Section)         */
+/* ======================================================= */
 .elegant-theme-body .invitation-main { animation: fadeIn 1s ease-in-out; padding: 4rem 2rem; }
-.elegant-theme-body section { max-width: 800px; margin: 4rem auto; text-align: center; }
+.elegant-theme-body section { 
+    margin: 4rem auto; 
+    text-align: center; 
+    /* HILANGKAN: min-height: 730px; agar konten tidak berantakan dan terlalu panjang */
+    min-height: auto; /* Dibuat auto agar konten yang pendek tidak memakan terlalu banyak tempat */
+}
+
+/* Memastikan Hero Section (Bagian Paling Atas) terlihat baik */
 .elegant-theme-body .hero-title { font-family: 'Playfair Display', serif; font-size: 3rem; }
 .elegant-theme-body .hero-date { font-size: 1.2rem; color: #888; }
 .elegant-theme-body .mempelai-section { display: flex; justify-content: center; align-items: center; gap: 2rem; }
@@ -57,11 +112,16 @@
 .elegant-theme-body .ampersand { font-family: 'Playfair Display', serif; font-size: 3rem; color: #c5a47e; }
 
 .elegant-theme-body .quotes-section { padding: 2rem; background-color: white; border-left: 5px solid #c5a47e; font-style: italic; font-size: 1.1rem; }
+
+/* JUDUL BAGIAN (Header H2) - Font Photograph Signature (Tangerine) 48px */
 .elegant-theme-body .acara-section h2, .love-story-section h2, .gallery-section h2, .video-section h2, .gift-section h2, .rsvp-section h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
+    font-family: 'Tangerine', cursive; /* Mengganti font judul ke Tangerine (gaya signature) */
+    font-size: 48px; /* Mengubah ukuran font menjadi 48px */
     margin-bottom: 2rem;
+    color: #c5a47e; /* Memberi warna aksen */
+    font-weight: 700;
 }
+
 .elegant-theme-body .acara-card { background-color: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
 .elegant-theme-body .timeline { position: relative; max-width: 750px; margin: 0 auto; }
 .elegant-theme-body .timeline::after { content: ''; position: absolute; width: 3px; background-color: #e0dcd7; top: 0; bottom: 0; left: 50%; margin-left: -1.5px; }
@@ -73,8 +133,38 @@
 .elegant-theme-body .timeline-content { padding: 20px 30px; background-color: white; position: relative; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 .elegant-theme-body .timeline-content h3 { font-family: 'Playfair Display', serif; margin-top: 0; color: #c5a47e; }
 
-.elegant-theme-body .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
-.elegant-theme-body .gallery-item { aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); } 
+/* Galeri (Layout dua foto per baris) - Diperbarui untuk menggunakan CSS Grid */
+.elegant-theme-body .gallery-grid { 
+    /* Menggunakan Grid untuk layout 2 kolom */
+    display: grid; 
+    /* Secara default, 2 kolom dengan ukuran yang sama */
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 1.5rem; 
+    padding: 0; /* Pastikan tidak ada padding tambahan yang merusak grid */
+}
+/* Menghapus .gallery-row karena Grid menanganinya secara otomatis */
+.elegant-theme-body .gallery-row {
+    display: contents; /* Menghapus elemen ini dari alur, membiarkan item anak langsung masuk ke grid */
+}
+
+.elegant-theme-body .gallery-item { 
+    /* Hanya perlu memastikan rasio aspek dan styling visual */
+    aspect-ratio: 1 / 1; /* Memastikan kotak selalu persegi */
+    border-radius: 12px; 
+    overflow: hidden; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    border: 3px solid #fdfaf6; 
+    box-sizing: border-box;
+    display: block; 
+    /* Menghapus flex properties yang tidak relevan untuk Grid item */
+    flex: none; 
+} 
+.elegant-theme-body .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
 .elegant-theme-body .gallery-item:hover img { transform: scale(1.05); }
 
 .elegant-theme-body .video-wrapper { position: relative; padding-top: 56.25%; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
@@ -87,21 +177,90 @@
 
 /* Utilities */
 .hidden-player { display: none; visibility: hidden; }
-.music-control-btn { position: fixed; bottom: 20px; right: 20px; z-index: 999; background-color: rgba(0, 0, 0, 0.6); color: white; border: none; border-radius: 50px; padding: 0.8rem 1.5rem; cursor: pointer; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: background-color 0.3s; }
-.music-control-btn:hover { background-color: rgba(0, 0, 0, 0.8); }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* Styling Tombol Musik dengan Ikon */
+.music-control-btn { 
+    position: fixed; 
+    bottom: 20px; 
+    right: 20px; 
+    z-index: 999; 
+    background-color: #c5a47e; 
+    color: white; 
+    border: none; 
+    border-radius: 50%; 
+    padding: 1rem; 
+    width: 50px; 
+    height: 50px; 
+    cursor: pointer; 
+    font-size: 1.2rem; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+    transition: background-color 0.3s, transform 0.1s; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+}
+.music-control-btn:hover { 
+    background-color: #a48460; 
+    transform: scale(1.05);
+}
 
-@media screen and (max-width: 600px) {
+/* Responsiveness: Hilangkan isolasi saat layar < 500px agar konten memenuhi layar */
+@media screen and (max-width: 500px) {
+    /* Hilangkan background abu-abu saat di mode mobile */
+    .elegant-theme-body {
+        background-color: #fdfaf6; 
+    }
+    /* Hilangkan shadow pada container */
+    .elegant-theme-body .elegant-theme-container {
+        box-shadow: none; 
+    }
+    
+    /* Cover Section Mobile Adjustments */
+    .elegant-theme-body .cover-names {
+        font-size: 2.5rem;
+    }
+    .elegant-theme-body .cover-overlay {
+        width: 90%;
+        padding: 2rem 1rem;
+    }
+    
+    /* Timeline adjustments */
     .elegant-theme-body .timeline::after { left: 31px; }
     .elegant-theme-body .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; }
-    .elegant-theme-body .timeline-item:nth-child(odd),  .timeline-item:nth-child(even) { left: 0; }
+    .elegant-theme-body .timeline-item:nth-child(odd),  .elegant-theme-body .timeline-item:nth-child(even) { left: 0; }
     .elegant-theme-body .timeline-item::after { left: 15px; }
+    
+    /* Posisikan tombol musik sedikit lebih ke dalam di ponsel */
+    .music-control-btn {
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    /* Galeri di Ponsel - Tetap 2 kolom */
+    .elegant-theme-body .gallery-grid {
+        /* Mempertahankan 2 kolom di ponsel untuk tampilan yang lebih padat */
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 1rem;
+    }
+    
+    /* Menghapus aturan mobile yang tidak perlu */
+    .elegant-theme-body .gallery-row {
+        display: contents;
+    }
+    .elegant-theme-body .gallery-item {
+        flex: none;
+        width: 100%;
+        max-width: none;
+    }
+    
+    /* Untuk ponsel, tinggi minimum section dikurangi (dihapus/auto di atas) */
+    .elegant-theme-body section {
+        min-height: auto; /* Mengganti 500px menjadi auto */
+    }
 }
 
 .elegant-theme-body .turut-mengundang-names {
-    white-space: pre-wrap; /* Ini adalah kunci untuk menjaga format baris baru dari textarea */
+    white-space: pre-wrap; 
     line-height: 2;
     font-size: 1.1rem;
 }
-

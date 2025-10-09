@@ -1,70 +1,138 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './ManagementPage.css'; // Menggunakan styling bersama
+import Modal from '/src/components/Modal.jsx'; // FIX: Menggunakan path absolut
+import { FaPlus } from 'react-icons/fa'; // FIX: Menggunakan sub-paket ikon yang benar
 
 const AdminDashboardPage = () => {
     const [invitations, setInvitations] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [packages, setPackages] = useState([]);
+    const [themes, setThemes] = useState([]);
+    const [formData, setFormData] = useState({
+        client_username: '',
+        title: '',
+        slug: '',
+        packageId: '',
+        themeId: ''
+    });
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    
+    const formRef = useRef(null);
 
-    // Fungsi untuk logout, bisa digunakan kembali
-    const handleLogout = useCallback(() => {
-        localStorage.removeItem('token');
-        navigate('/login');
-    }, [navigate]);
-
-    // Fungsi untuk membuat instance Axios dengan header otentikasi
     const createApiInstance = useCallback(() => {
         const token = localStorage.getItem('token');
         if (!token) {
-            handleLogout(); // Jika tidak ada token, paksa logout
+            navigate('/login');
             return null;
         }
         return axios.create({
             baseURL: 'http://localhost:5000/api',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-    }, [handleLogout]);
+    }, [navigate]);
 
-    // Fungsi untuk mengambil data undangan milik admin
     const fetchInvitations = useCallback(async () => {
         setLoading(true);
         const api = createApiInstance();
         if (!api) return;
-
         try {
             const response = await api.get('/invitations/my-invitations');
             setInvitations(response.data.data || []);
         } catch (err) {
             console.error('Error saat mengambil undangan:', err);
-            // Jika token tidak valid atau akses ditolak, logout
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                handleLogout();
-            }
         } finally {
-            // Pastikan loading selalu dihentikan
             setLoading(false);
         }
-    }, [createApiInstance, handleLogout]);
+    }, [createApiInstance]);
 
-    // Panggil fungsi fetchInvitations saat komponen pertama kali dimuat
     useEffect(() => {
         fetchInvitations();
     }, [fetchInvitations]);
 
-    // Tampilkan pesan loading saat data sedang diambil
+    const openCreateModal = async () => {
+        setError('');
+        setSuccess('');
+        setFormData({ client_username: '', title: '', slug: '', packageId: '', themeId: '' });
+        setIsModalOpen(true);
+        
+        const api = createApiInstance();
+        if (!api) return;
+        try {
+            const [packagesRes, themesRes] = await Promise.all([
+                api.get('/packages'),
+                api.get('/themes')
+            ]);
+            const packagesData = packagesRes.data.data || [];
+            const themesData = themesRes.data.data || [];
+            setPackages(packagesData);
+            setThemes(themesData);
+            
+            setFormData(prev => ({
+                ...prev,
+                packageId: packagesData[0]?.id || '',
+                themeId: themesData[0]?.id || ''
+            }));
+        } catch (err) {
+            setError('Gagal memuat data untuk form. Pastikan ada Paket & Tema.');
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            [name]: value
+        }));
+    };
+    
+    const triggerFormSubmit = () => {
+        if (formRef.current) {
+            formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+    };
+
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        const api = createApiInstance();
+        if (!api) return;
+
+        if (!formData.packageId || !formData.themeId) {
+            setError('Silakan pilih paket dan tema.');
+            return;
+        }
+
+        try {
+            const response = await api.post('/orders', formData);
+            const pinMessage = response.data.data?.client_pin ? ` PIN Klien: ${response.data.data.client_pin}` : '';
+            setSuccess(`Undangan berhasil dibuat!${pinMessage}`);
+            fetchInvitations();
+            setIsModalOpen(false);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Gagal membuat undangan.');
+        }
+    };
+
     if (loading) {
         return <div className="loading-spinner">Memuat data undangan...</div>;
     }
 
     return (
         <div className="management-page">
-            <header className="page-header">
-                <h1>Daftar Undangan Saya</h1>
-            </header>
-            <div className="list-card card" style={{ gridColumn: '1 / -1' }}>
-                <h2>Undangan yang Telah Dibuat</h2>
+            {success && <div className="success-banner">{success}</div>}
+            <div className="list-card card">
+                <div className="table-header">
+                    <h2>Daftar Undangan Saya</h2>
+                    <button className="add-new-button" onClick={openCreateModal}>
+                        <FaPlus /> Buat Undangan Baru
+                    </button>
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -98,6 +166,44 @@ const AdminDashboardPage = () => {
                     </tbody>
                 </table>
             </div>
+
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={triggerFormSubmit}
+                title="Buat Undangan Baru"
+                confirmText="Buat Draf"
+            >
+                <form ref={formRef} onSubmit={handleFormSubmit} id="create-invitation-form">
+                    <div className="form-group">
+                        <label>Username Klien</label>
+                        <input type="text" name="client_username" value={formData.client_username} onChange={handleInputChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label>Judul Undangan</label>
+                        <input type="text" name="title" value={formData.title} onChange={handleInputChange} placeholder="Contoh: Pernikahan Andin & Budi" required />
+                    </div>
+                    <div className="form-group">
+                        <label>Slug URL</label>
+                        <input type="text" name="slug" value={formData.slug} onChange={handleInputChange} placeholder="Contoh: andin-budi" required />
+                    </div>
+                    <div className="form-group">
+                        <label>Pilih Paket</label>
+                        <select name="packageId" value={formData.packageId} onChange={handleInputChange} required>
+                             {packages.length === 0 && <option>Memuat...</option>}
+                            {packages.map(pkg => <option key={pkg.id} value={pkg.id}>{pkg.name}</option>)}
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label>Pilih Tema</label>
+                        <select name="themeId" value={formData.themeId} onChange={handleInputChange} required>
+                            {themes.length === 0 && <option>Memuat...</option>}
+                            {themes.map(theme => <option key={theme.id} value={theme.id}>{theme.name} ({theme.tier})</option>)}
+                        </select>
+                    </div>
+                    {error && <p className="error-message">{error}</p>}
+                </form>
+            </Modal>
         </div>
     );
 };

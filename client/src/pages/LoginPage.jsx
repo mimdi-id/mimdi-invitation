@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-// import './LoginPage.css'; // Dihapus untuk mengatasi masalah resolusi file CSS
 
 const COLORS = {
     primary: '#ff5722', // Deep Orange
@@ -73,10 +72,13 @@ const styles = {
         marginBottom: '8px',
         color: COLORS.textPrimary,
     },
+    // FIX: Mengganti properti `border` dengan properti longhand yang konsisten
     input: {
         width: '100%',
         padding: '12px',
-        border: `1px solid ${COLORS.borderColor}`,
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: COLORS.borderColor,
         borderRadius: '8px',
         fontSize: '16px',
         boxSizing: 'border-box',
@@ -148,11 +150,9 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // State untuk menangani gaya fokus
     const [isUsernameFocused, setIsUsernameFocused] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
-    // Pastikan base URL ini diperbarui sesuai lingkungan production/development Anda
     const API_BASE_URL = 'http://localhost:5000/api/auth/login';
 
     const handleLogin = async (e) => {
@@ -167,20 +167,17 @@ const LoginPage = () => {
             });
 
             if (response.data.success && response.data.token) {
-                // Simpan token ke localStorage
                 localStorage.setItem('token', response.data.token);
                 
-                // Ambil peran pengguna dari respons API
                 const userRole = response.data.user?.role?.name;
 
-                // Arahkan berdasarkan peran
                 if (userRole === 'Super Admin') {
-                    navigate('/dashboard'); // Rute defaultnya akan ke /dashboard/admins
+                    navigate('/dashboard');
                 } else if (userRole === 'Admin') {
-                    navigate('/admin');     // Rute defaultnya akan ke /admin/dashboard
+                    navigate('/admin');
                 } else {
                     setError('Peran pengguna tidak valid atau tidak dikenali.');
-                    localStorage.removeItem('token'); // Hapus token jika peran tidak valid
+                    localStorage.removeItem('token');
                 }
             } else {
                 setError(response.data.error || 'Terjadi kesalahan saat login.');
@@ -197,14 +194,10 @@ const LoginPage = () => {
         }
     };
 
-    // Fungsi untuk menggabungkan gaya, termasuk gaya hover/disabled/focus
     const getButtonStyle = () => {
         let style = styles.button;
         if (loading) {
             style = { ...style, ...styles.buttonDisabled };
-        } else {
-            // Karena tidak ada pseudo-class :hover di JSX style, kita mengandalkan event listener
-            // Namun, untuk kesederhanaan, kita hanya menggunakan gaya statis untuk disabled/enabled
         }
         return style;
     };
@@ -223,7 +216,6 @@ const LoginPage = () => {
                     <p style={styles.subtitle}>Masuk untuk mengakses dasbor admin Anda.</p>
                 </div>
                 <form style={styles.form} onSubmit={handleLogin}>
-                    {/* Username Input */}
                     <div style={styles.inputGroup}>
                         <label htmlFor="username" style={styles.label}>Username</label>
                         <input
@@ -240,7 +232,6 @@ const LoginPage = () => {
                         />
                     </div>
 
-                    {/* Password Input */}
                     <div style={styles.inputGroup}>
                         <label htmlFor="password" style={styles.label}>Password</label>
                         <input
@@ -257,7 +248,6 @@ const LoginPage = () => {
                         />
                     </div>
                     
-                    {/* TAUTAN LUPA PASSWORD */}
                     <div style={styles.forgotPassword}>
                         <a 
                             href="#" 
@@ -271,10 +261,8 @@ const LoginPage = () => {
                         </a>
                     </div>
                     
-                    {/* Error Message */}
                     {error && <p style={styles.errorMessage}>{error}</p>}
                     
-                    {/* Tombol Login */}
                     <button 
                         type="submit" 
                         style={getButtonStyle()} 
@@ -298,7 +286,7 @@ const LoginPage = () => {
                     </button>
                     
                     <p style={styles.footerText}>
-                        &copy; 2024 Mimdi Invitation.
+                        &copy; 2025 Mimdi Invitation.
                     </p>
                 </form>
             </div>

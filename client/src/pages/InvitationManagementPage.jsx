@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './ManagementPage.css'; // Menggunakan styling bersama
 
 const InvitationManagementPage = () => {
     const [invitations, setInvitations] = useState([]);
@@ -51,11 +50,10 @@ const InvitationManagementPage = () => {
 
     return (
         <div className="management-page">
-            <header className="page-header">
-                <h1>Semua Undangan</h1>
-            </header>
             <div className="list-card card" style={{ gridColumn: '1 / -1' }}>
-                <h2>Daftar Seluruh Undangan di Sistem</h2>
+                <div className="table-header">
+                    <h2>Seluruh Undangan di Sistem</h2>
+                </div>
                 <table>
                     <thead>
                         <tr>

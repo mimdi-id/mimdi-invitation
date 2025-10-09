@@ -1,7 +1,8 @@
 import React from 'react';
-import './Modal.css';
+import '/src/components/Modal.css'; // FIX: Menggunakan path absolut untuk impor CSS
 
-const Modal = ({ isOpen, onClose, onConfirm, title, children }) => {
+// FIX: Tombol konfirmasi sekarang hanya memanggil onConfirm, membuatnya lebih fleksibel
+const Modal = ({ isOpen, onClose, onConfirm, title, children, confirmText }) => {
     if (!isOpen) {
         return null;
     }
@@ -20,8 +21,9 @@ const Modal = ({ isOpen, onClose, onConfirm, title, children }) => {
                     <button onClick={onClose} className="button-secondary">
                         Batal
                     </button>
-                    <button onClick={onConfirm} className="button-danger">
-                        Konfirmasi
+                    {/* FIX: Tombol ini sekarang secara eksklusif memanggil prop onConfirm */}
+                    <button onClick={onConfirm} className="button-primary">
+                        {confirmText || 'Konfirmasi'}
                     </button>
                 </div>
             </div>
@@ -30,3 +32,4 @@ const Modal = ({ isOpen, onClose, onConfirm, title, children }) => {
 };
 
 export default Modal;
+

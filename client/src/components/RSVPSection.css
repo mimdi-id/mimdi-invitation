@@ -1,0 +1,233 @@
+.rsvp-section-modern {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #fffaf5;
+}
+
+.rsvp-container-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 600px;
+  width: 100%;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.rsvp-title {
+  font-family: 'Playfair Display', serif;
+  color: #c69b7b;
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.rsvp-form-modern label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #444;
+  display: block;
+  margin-top: 1rem;
+}
+
+.rsvp-form-modern input,
+.rsvp-form-modern select,
+.rsvp-form-modern textarea {
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.rsvp-form-modern button {
+  margin-top: 1.2rem;
+  width: 100%;
+  background: linear-gradient(90deg, #f7c59f, #d49a6a);
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.rsvp-form-modern button:hover {
+  opacity: 0.9;
+}
+
+.error-text {
+  color: #e74c3c;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.success-text {
+  color: #2ecc71;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* Buku tamu modern */
+.guestbook-modern h3 {
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.guestbook-table-container {
+  max-height: 300px; /* batas tinggi container */
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.guestbook-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.guestbook-table th {
+  background-color: #f9f2ec;
+  color: #444;
+  font-weight: 600;
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.guestbook-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f1f1;
+  color: #333;
+}
+
+.guestbook-table tr:hover {
+  background-color: #fff6f0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-hadir {
+  background-color: #d4f8e8;
+  color: #16a34a;
+}
+
+.status-ragu-ragu {
+  background-color: #fff4cc;
+  color: #c27c00;
+}
+
+.status-tidak-hadir {
+  background-color: #ffe2e2;
+  color: #d32f2f;
+}
+
+.no-guest {
+  text-align: center;
+  color: #777;
+  padding: 1rem;
+}
+
+.attendance-options {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+.attendance-option {
+  flex: 1;
+  background-color: #fafafa;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 0;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #555;
+  user-select: none;
+}
+
+.attendance-option input {
+  display: none;
+}
+
+.attendance-option:hover {
+  border-color: #d49a6a;
+}
+
+.attendance-option.selected {
+  background: linear-gradient(90deg, #f7c59f, #d49a6a);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+/* === Buku Tamu versi Card === */
+.guestbook-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.guest-card {
+  background: #fff8f3;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  transition: 0.2s ease;
+}
+
+.guest-card:hover {
+  transform: translateY(-2px);
+  background: #fff5ef;
+}
+
+
+.guest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+
+.status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.status.hadir { background: #e8f5e9; color: #2e7d32; }
+.status.ragu-ragu { background: #fff8e1; color: #ff9800; }
+.status.tidak-hadir { background: #f5f5f5; color: #616161; }
+
+.guest-message {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #444;
+  margin-top: 0.3rem;
+  text-align: left; /* 👈 pesan mulai dari kiri */
+}

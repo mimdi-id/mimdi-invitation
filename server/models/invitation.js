@@ -4,9 +4,9 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Invitation extends Model {
     static associate(models) {
-      // Asosiasi yang sudah ada
       Invitation.belongsTo(models.User, { as: 'admin', foreignKey: 'adminId' });
-      Invitation.belongsTo(models.User, { as: 'client', foreignKey: 'userId' });
+      // FIX: Mengubah foreignKey dari 'userId' menjadi 'clientId' agar sesuai
+      Invitation.belongsTo(models.User, { as: 'client', foreignKey: 'clientId' }); 
       Invitation.belongsTo(models.Package, { as: 'package', foreignKey: 'packageId' });
       Invitation.belongsTo(models.Theme, { as: 'theme', foreignKey: 'themeId' });
       Invitation.hasOne(models.Order, { as: 'order', foreignKey: 'invitationId' });
@@ -14,17 +14,14 @@ module.exports = (sequelize, DataTypes) => {
       Invitation.hasMany(models.Event, { as: 'events', foreignKey: 'invitationId', onDelete: 'CASCADE' });
       Invitation.hasMany(models.GalleryPhoto, { as: 'galleryPhotos', foreignKey: 'invitationId', onDelete: 'CASCADE' });
       Invitation.hasMany(models.LoveStory, { as: 'loveStories', foreignKey: 'invitationId', onDelete: 'CASCADE' });
-
-      // --- ASOSIASI BARU ---
-      // Hubungan: Satu Undangan bisa memiliki banyak entri RSVP.
       Invitation.hasMany(models.RSVP, { as: 'rsvps', foreignKey: 'invitationId', onDelete: 'CASCADE' });
-  
     }
   }
   Invitation.init({
     title: { type: DataTypes.STRING, allowNull: false },
     slug: { type: DataTypes.STRING, allowNull: false, unique: true },
-    status: { type: DataTypes.ENUM('Draf', 'Aktif', 'Kedaluwarsa'), defaultValue: 'Draf' },
+    // FIX: Mengoreksi salah ketik dari 'Draf' menjadi 'Draft'
+    status: { type: DataTypes.ENUM('Draft', 'Aktif', 'Kedaluwarsa'), defaultValue: 'Draft' },
     client_pin_plain: { type: DataTypes.STRING, allowNull: true },
     activation_date: DataTypes.DATE,
     expiry_date: DataTypes.DATE,
@@ -34,8 +31,6 @@ module.exports = (sequelize, DataTypes) => {
     music_url: DataTypes.STRING,
     video_url: DataTypes.STRING,
     live_stream_url: DataTypes.STRING,
-    // --- PENAMBAHAN KOLOM BARU ---
-    // Menyimpan seluruh teks 'Turut Mengundang' dalam satu kolom
     turut_mengundang_text: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -55,4 +50,3 @@ module.exports = (sequelize, DataTypes) => {
   });
   return Invitation;
 };
-

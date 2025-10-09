@@ -1,47 +1,39 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Modal from '../components/Modal';
-import './ManagementPage.css';
+import Modal from '/src/components/Modal.jsx';
+import { FaPlus, FaPencil, FaTrash } from 'react-icons/fa6';
 
 const ThemeManagementPage = () => {
     const [themes, setThemes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-        const [previewImageFile, setPreviewImageFile] = useState(null);
- const handleFileChange = (e) => {
-        setPreviewImageFile(e.target.files[0]);
-    };
+    const [previewImageFile, setPreviewImageFile] = useState(null);
 
-    // State untuk form, sekarang termasuk component_name
     const [formData, setFormData] = useState({
         name: '',
         tier: 'Basic',
-        component_name: '', // State baru
+        component_name: '',
         config: ''
     });
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingThemeId, setEditingThemeId] = useState(null);
     const [themeToDelete, setThemeToDelete] = useState(null);
     const navigate = useNavigate();
 
-    const handleLogout = useCallback(() => {
-        localStorage.removeItem('token');
-        navigate('/login');
-    }, [navigate]);
-
     const createApiInstance = useCallback(() => {
         const token = localStorage.getItem('token');
         if (!token) {
-            handleLogout();
+            navigate('/login');
             return null;
         }
         return axios.create({
             baseURL: 'http://localhost:5000/api',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-    }, [handleLogout]);
+    }, [navigate]);
 
     const fetchThemes = useCallback(async () => {
         setLoading(true);
@@ -52,70 +44,76 @@ const ThemeManagementPage = () => {
             setThemes(response.data.data || []);
         } catch (err) { 
             console.error('Error fetching themes:', err);
-            if (err.response?.status === 401 || err.response?.status === 403) {
-                handleLogout();
-            }
-        } 
-        finally { setLoading(false); }
-    }, [createApiInstance, handleLogout]);
+        } finally { 
+            setLoading(false); 
+        }
+    }, [createApiInstance, navigate]);
 
     useEffect(() => { 
         fetchThemes(); 
     }, [fetchThemes]);
 
+    const handleFileChange = (e) => {
+        setPreviewImageFile(e.target.files[0]);
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-
-    const resetForm = () => {
-        setFormData({ name: '', tier: 'Basic', component_name: '', config: '' });
+    
+    const openModalForNew = () => {
+        resetForm();
         setEditingThemeId(null);
-        setError(''); 
-        setSuccess('');
+        setIsModalOpen(true);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(''); 
-        setSuccess('');
-        const api = createApiInstance();
-        if (!api) return;
-
-        let configPayload;
-        try {
-            // Pastikan config adalah JSON yang valid sebelum dikirim
-            configPayload = JSON.parse(formData.config || '{}');
-        } catch (jsonError) {
-            setError('Format JSON pada kolom Konfigurasi tidak valid.');
-            return;
-        }
-
-        const payload = { ...formData, config: configPayload };
-        
-        try {
-            if (editingThemeId) {
-                await api.put(`/themes/${editingThemeId}`, formDataPayload, { headers: { 'Content-Type': 'multipart/form-data' } });
-            } else {
-                await api.post('/themes', formDataPayload, { headers: { 'Content-Type': 'multipart/form-data' } });
-            }
-            resetForm();
-            fetchThemes();
-        } catch (err) {
-            setError(err.response?.data?.error || 'Terjadi kesalahan.');
-        }
-    };
-
-    const handleEdit = (theme) => {
+    const openModalForEdit = (theme) => {
         setEditingThemeId(theme.id);
         setFormData({
             name: theme.name,
             tier: theme.tier,
             component_name: theme.component_name,
-            // Format JSON agar mudah dibaca di textarea
             config: JSON.stringify(theme.config || '{}', null, 2)
         });
-        window.scrollTo(0, 0); // Scroll ke atas untuk fokus ke form
+        setPreviewImageFile(null);
+        setIsModalOpen(true);
+    };
+
+    const resetForm = () => {
+        setFormData({ name: '', tier: 'Basic', component_name: '', config: '' });
+        setError('');
+        setSuccess('');
+        setPreviewImageFile(null);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        const api = createApiInstance();
+        if (!api) return;
+
+        const submissionData = new FormData();
+        Object.keys(formData).forEach(key => {
+            submissionData.append(key, formData[key]);
+        });
+        if (previewImageFile) {
+            submissionData.append('preview_image', previewImageFile);
+        }
+        
+        try {
+            if (editingThemeId) {
+                await api.put(`/themes/${editingThemeId}`, submissionData, { headers: { 'Content-Type': 'multipart/form-data' } });
+                setSuccess('Tema berhasil diperbarui!');
+            } else {
+                await api.post('/themes', submissionData, { headers: { 'Content-Type': 'multipart/form-data' } });
+                setSuccess('Tema berhasil ditambahkan!');
+            }
+            fetchThemes();
+            setIsModalOpen(false);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Terjadi kesalahan.');
+        }
     };
 
     const handleDelete = async () => {
@@ -125,11 +123,10 @@ const ThemeManagementPage = () => {
         try {
             await api.delete(`/themes/${themeToDelete.id}`);
             setSuccess(`Tema "${themeToDelete.name}" berhasil dihapus.`);
-            setThemeToDelete(null); // Tutup modal
+            setThemeToDelete(null);
             fetchThemes();
         } catch (err) {
-            setError(err.response?.data?.error || 'Gagal menghapus tema.');
-            console.error('Delete theme error:', err);
+            alert(err.response?.data?.error || 'Gagal menghapus tema.');
         }
     };
 
@@ -139,79 +136,59 @@ const ThemeManagementPage = () => {
 
     return (
         <div className="management-page">
-            <header className="page-header"><h1>Kelola Tema</h1></header>
-            <div className="content-grid">
-                <div className="form-card card">
-                    <h2>{editingThemeId ? 'Edit Tema' : 'Tambah Tema Baru'}</h2>
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="name">Nama Tema</label>
-                            <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} required />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="tier">Tingkatan</label>
-                            <select id="tier" name="tier" value={formData.tier} onChange={handleInputChange} required>
-                                <option value="Basic">Basic</option>
-                                <option value="Premium">Premium</option>
-                                <option value="Custom">Custom</option>
-                            </select>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="component_name">Nama Komponen (Contoh: ElegantTheme)</label>
-                            <input type="text" id="component_name" name="component_name" value={formData.component_name} onChange={handleInputChange} placeholder="Harus cocok dengan nama file komponen" required />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="config">Konfigurasi (JSON)</label>
-                            <textarea id="config" name="config" value={formData.config} onChange={handleInputChange} rows="10" placeholder='Contoh: { "warnaPrimer": "#FFFFFF" }'></textarea>
-                        </div>
-
-                        <div className="form-group">
-                    <label htmlFor="preview_image">Gambar Pratinjau</label>
-                    <input type="file" id="preview_image" onChange={handleFileChange} />
-                </div>
-
-                        <button type="submit" className="submit-button">{editingThemeId ? 'Simpan Perubahan' : 'Tambah Tema'}</button>
-                        {editingThemeId && <button type="button" onClick={resetForm} className="cancel-button">Batal Edit</button>}
-                        
-                        {error && <p className="error-message">{error}</p>}
-                        {success && <p className="success-message">{success}</p>}
-                    </form>
-                </div>
-                <div className="list-card card">
+            {success && <div className="success-banner">{success}</div>}
+            <div className="list-card card">
+                <div className="table-header">
                     <h2>Daftar Tema</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nama</th>
-                                <th>Tingkatan</th>
-                                <th>Nama Komponen</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {themes.length > 0 ? (
-                                themes.map(theme => (
-                                    <tr key={theme.id}>
-                                        <td>{theme.name}</td>
-                                        <td>{theme.tier}</td>
-                                        <td>{theme.component_name}</td>
-                                        <td>
-                                            <div className="action-buttons">
-                                                <button onClick={() => handleEdit(theme)} className="edit-button">Edit</button>
-                                                <button onClick={() => setThemeToDelete(theme)} className="delete-button">Hapus</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr><td colSpan="4">Belum ada tema yang ditambahkan.</td></tr>
-                            )}
-                        </tbody>
-                    </table>
+                    <button className="add-new-button" onClick={openModalForNew}>
+                        <FaPlus /> Tambah Tema Baru
+                    </button>
                 </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Tingkatan</th>
+                            <th>Nama Komponen</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {themes.map(theme => (
+                            <tr key={theme.id}>
+                                <td>{theme.name}</td>
+                                <td>{theme.tier}</td>
+                                <td>{theme.component_name}</td>
+                                <td>
+                                    <div className="action-buttons">
+                                        <button onClick={() => openModalForEdit(theme)} className="edit-button-icon" title="Edit Tema"><FaPencil /></button>
+                                        <button onClick={() => setThemeToDelete(theme)} className="edit-button-icon" title="Hapus Tema"><FaTrash /></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
+            
+            <Modal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                formId="theme-form"
+                title={editingThemeId ? 'Edit Tema' : 'Tambah Tema Baru'} 
+                confirmText={editingThemeId ? 'Simpan' : 'Tambah'}
+            >
+                <form onSubmit={handleSubmit} id="theme-form">
+                    <div className="form-group"><label>Nama Tema</label><input type="text" name="name" value={formData.name} onChange={handleInputChange} required /></div>
+                    <div className="form-group"><label>Tingkatan</label><select name="tier" value={formData.tier} onChange={handleInputChange}><option value="Basic">Basic</option><option value="Premium">Premium</option><option value="Custom">Custom</option></select></div>
+                    <div className="form-group"><label>Nama Komponen</label><input type="text" name="component_name" value={formData.component_name} onChange={handleInputChange} required /></div>
+                    <div className="form-group"><label>Konfigurasi (JSON)</label><textarea name="config" value={formData.config} onChange={handleInputChange} rows="5"></textarea></div>
+                    <div className="form-group"><label>Gambar Pratinjau</label><input type="file" onChange={handleFileChange} /></div>
+                    {error && <p className="error-message">{error}</p>}
+                </form>
+            </Modal>
+
+            {/* FIX: Modal hapus sekarang akan berfungsi */}
             <Modal isOpen={!!themeToDelete} onClose={() => setThemeToDelete(null)} onConfirm={handleDelete} title="Konfirmasi Hapus">
                 <p>Apakah Anda yakin ingin menghapus tema <strong>"{themeToDelete?.name}"</strong>?</p>
             </Modal>
